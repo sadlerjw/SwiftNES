@@ -1,13 +1,13 @@
 //
-//  SwiftNESUITestsLaunchTests.swift
-//  SwiftNESUITests
+//  NES_iOSUITestsLaunchTests.swift
+//  NES-iOSUITests
 //
 //  Created by Jason Sadler on 2025-07-29.
 //
 
 import XCTest
 
-final class SwiftNESUITestsLaunchTests: XCTestCase {
+final class NES_iOSUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

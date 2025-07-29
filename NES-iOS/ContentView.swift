@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  SwiftNES
+//  NES-iOS
 //
 //  Created by Jason Sadler on 2025-07-29.
 //

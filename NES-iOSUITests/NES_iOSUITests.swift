@@ -1,13 +1,13 @@
 //
-//  SwiftNESUITests.swift
-//  SwiftNESUITests
+//  NES_iOSUITests.swift
+//  NES-iOSUITests
 //
 //  Created by Jason Sadler on 2025-07-29.
 //
 
 import XCTest
 
-final class SwiftNESUITests: XCTestCase {
+final class NES_iOSUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
