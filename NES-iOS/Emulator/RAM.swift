@@ -5,6 +5,9 @@
 //  Created by Jason Sadler on 2025-07-29.
 //
 
+import Observation
+
+@Observable
 class RAM<let staticLength: Int> : BusDevice {
     var length: Offset { return Offset(staticLength) }
     var name: String { return "RAM(\(staticLength))"}

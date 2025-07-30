@@ -5,15 +5,15 @@
 //  Created by Jason Sadler on 2025-07-29.
 //
 
-protocol Bus {
+protocol Bus : AnyObject {
     associatedtype Source
     
-    mutating func write(_ value: Byte, at address: Address, from source: Source)
+    func write(_ value: Byte, at address: Address, from source: Source)
     func read(_ address: Address, from source: Source) -> UInt8
 }
 
 extension Bus where Source == Void {
-    mutating func write(_ value: Byte, at address: Address) {
+    func write(_ value: Byte, at address: Address) {
         self.write(value, at: address, from: ())
     }
     
