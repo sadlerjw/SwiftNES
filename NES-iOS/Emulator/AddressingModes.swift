@@ -26,52 +26,17 @@ extension AddressingMode {
 }
 
 enum AddressingModes {
-    struct Implied : AddressingMode {
-        static let sharedInstance = Self.init()
-        
-        func fetch(cpu: borrowing CPU) {
-            // No-op!
-        }
+    // Namespace for the various addressing modes
+    // See the files in the AddressingModes folder
+    // for implementations.
+}
+
+extension Address {
+    init(low: Byte, high: Byte) {
+        self = UInt16(high) << 8 | UInt16(low)
     }
     
-    struct Immediate : AddressingMode {
-        static let sharedInstance = Self.init()
-        
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            cpu.fetchedData = cpu.bus.read(cpu.pc)
-            cpu.pc += 1
-        }
-    }
-    
-    struct ZeroPage : AddressingMode {
-        static let sharedInstance = Self.init()
-    }
-    
-    struct ZeroPageX : AddressingMode {
-        static let sharedInstance = Self.init()
-    }
-    
-    struct ZeroPageY : AddressingMode {
-        static let sharedInstance = Self.init()
-    }
-    
-    struct Absolute : AddressingMode {
-        static let sharedInstance = Self.init()
-    }
-    
-    struct AbsoluteX : AddressingMode {
-        static let sharedInstance = Self.init()
-    }
-    
-    struct AbsoluteY : AddressingMode {
-        static let sharedInstance = Self.init()
-    }
-    
-    struct IndirectX : AddressingMode {
-        static let sharedInstance = Self.init()
-    }
-    
-    struct IndirectY : AddressingMode {
-        static let sharedInstance = Self.init()
+    func isOnDifferentPage(from otherAddress: Address) -> Bool {
+        return self & 0xFF00 != otherAddress & 0xFF00
     }
 }
