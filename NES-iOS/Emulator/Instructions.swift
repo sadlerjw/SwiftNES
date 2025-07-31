@@ -25,8 +25,8 @@ extension Instruction {
 enum Instructions {
     static let all : [Instruction.Type] = [
         AND.self, ASL.self, BCC.self, BCS.self, BEQ.self, BIT.self, BMI.self, BNE.self, BPL.self, BRK.self,
-        BVC.self, BVS.self,
-        LDA.self, LDX.self, ADC.self, DEX.self, CLC.self, NOP.self
+        BVC.self, BVS.self, CLC.self, CLD.self,
+        LDA.self, LDX.self, ADC.self, DEX.self, NOP.self
     ]
     
     // Namespace for the various instructions
