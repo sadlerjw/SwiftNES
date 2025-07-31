@@ -6,11 +6,11 @@
 //
 
 extension Instructions {
-    struct DEX : Instruction {
+    struct DEY : Instruction {
         static let sharedInstance = Self.init()
         
         static let opcodeReferences : [OpcodeReference] = [
-            .init(opcode: 0xCA,
+            .init(opcode: 0x88,
                   totalBytes: 1,
                   defaultCycles: 2,
                   instruction: Self.sharedInstance,
@@ -19,9 +19,9 @@ extension Instructions {
         
         @discardableResult
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-            cpu.x &-= 1
-            cpu.status.setZ(cpu.x == 0)
-            cpu.status.setN(cpu.x >> 7 == 1)
+            cpu.y &-= 1
+            cpu.status.setZ(cpu.y == 0)
+            cpu.status.setN(cpu.y >> 7 == 1)
             
             return nil
         }
