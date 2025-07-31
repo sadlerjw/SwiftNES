@@ -14,10 +14,10 @@ typealias Byte = UInt8
 class NES {
     let mainBus = MainBus()
     let cpu : CPU
-    let ram : RAM<0xFFFF>
+    let ram : RAM<0x10000>
     
     init () {
-        ram = RAM<0xFFFF>()
+        ram = RAM<0x10000>()
         mainBus.addDevice(ram, at: 0x0000)
         cpu = CPU(bus: mainBus)
     }

@@ -9,7 +9,7 @@ import Observation
 
 @Observable
 class RAM<let staticLength: Int> : BusDevice {
-    var length: Offset { return Offset(staticLength) }
+    var length: Int { return staticLength }
     var name: String { return "RAM(\(staticLength))"}
     
     func write(_ value: Byte, at offset: Offset) {

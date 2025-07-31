@@ -42,7 +42,7 @@ struct NESDebuggingView: View {
                 LabeledContent("X", value: String(format: "%02X", nes.cpu.x))
                 LabeledContent("Y", value: String(format: "%02X", nes.cpu.y))
                 LabeledContent("PC", value: String(format: "%04X", nes.cpu.pc))
-                LabeledContent("SP", value: String(format: "%02X", nes.cpu.stackPointer))
+                LabeledContent("SP", value: String(format: "%02X", nes.cpu.stack.stackPointer))
             }
             ramSection
         }

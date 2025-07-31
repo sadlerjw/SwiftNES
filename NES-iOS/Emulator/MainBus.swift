@@ -12,14 +12,14 @@ class MainBus : Bus {
         var start : Address
         var device : BusDevice
         
-        var range : Range<Address> { start ..< (start + device.length) }
+        var range : ClosedRange<Address> { start ... (start + Address(device.length - 1)) }
     }
     
     private var deviceEntries = [Entry]()
     
     private func deviceEntry(at address: Address) -> Entry? {
         for entry in deviceEntries {
-            if address >= entry.start && address < entry.start + entry.device.length {
+            if address >= entry.start && address < Int(entry.start) + entry.device.length {
                 return entry
             }
         }
