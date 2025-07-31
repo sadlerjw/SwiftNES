@@ -56,6 +56,7 @@ extension Instructions {
                   addressingMode: AddressingModes.IndirectY.sharedInstance),
         ]
         
+        @discardableResult
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             let result = UInt16(cpu.a) &+ UInt16(cpu.fetchedData) &+ UInt16(cpu.status.contains(.c) ? 1 : 0)
             

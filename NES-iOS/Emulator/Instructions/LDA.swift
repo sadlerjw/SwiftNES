@@ -58,6 +58,7 @@ extension Instructions {
             
         ]
         
+        @discardableResult
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             cpu.a = cpu.fetchedData
             

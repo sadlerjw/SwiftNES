@@ -23,6 +23,7 @@ extension Instructions {
 
         ]
         
+        @discardableResult
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             let and = cpu.a & cpu.fetchedData
             

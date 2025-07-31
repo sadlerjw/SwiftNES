@@ -32,7 +32,6 @@ extension Instructions {
                   addressingMode: AddressingModes.AbsoluteX.sharedInstance),
         ]
         
-        @discardableResult
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             let result = cpu.fetchedData &+ 1
             cpu.status.setZ(result == 0)

@@ -38,6 +38,7 @@ extension Instructions {
                   addressingMode: AddressingModes.AbsoluteY.sharedInstance),
         ]
         
+        @discardableResult
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             cpu.x = cpu.fetchedData
             

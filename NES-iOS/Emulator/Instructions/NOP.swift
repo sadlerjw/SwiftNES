@@ -17,6 +17,7 @@ extension Instructions {
                   addressingMode: AddressingModes.Implied.sharedInstance),
         ]
         
+        @discardableResult
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             // no-op!
             return nil

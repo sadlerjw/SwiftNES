@@ -22,6 +22,7 @@ extension Instructions {
                   addressingMode: AddressingModes.Indirect.sharedInstance),
         ]
         
+        @discardableResult
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             guard let fetchedFromAddress = cpu.fetchedFromAddress else { fatalError() }
             

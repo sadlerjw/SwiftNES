@@ -64,7 +64,7 @@ extension Instructions {
             cpu.status.setZ(cpu.a == 0)
             cpu.status.setN(cpu.a & 0x80 != 0)
             
-            return 0
+            return nil
         }
     }
 }
