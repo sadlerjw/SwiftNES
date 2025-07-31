@@ -33,6 +33,7 @@ import Testing
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
         #expect(cpu.fetchedData == 0xA9)
+        #expect(cpu.fetchedFromAddress == 0xABD1)
         #expect(cpu.cyclesBeforeNextInstruction == 2)
     }
     
@@ -54,6 +55,7 @@ import Testing
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         
         #expect(cpu.fetchedData == 0xA9)
+        #expect(cpu.fetchedFromAddress == 0xABD1)
         #expect(cpu.cyclesBeforeNextInstruction == 2)
     }
     
@@ -75,6 +77,7 @@ import Testing
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
         #expect(cpu.fetchedData == 0xA9)
+        #expect(cpu.fetchedFromAddress == 0xAC12)
         #expect(cpu.cyclesBeforeNextInstruction == 2)
     }
     
@@ -96,6 +99,7 @@ import Testing
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         
         #expect(cpu.fetchedData == 0xA9)
+        #expect(cpu.fetchedFromAddress == 0xAC12)
         #expect(cpu.cyclesBeforeNextInstruction == 3)
     }
 }

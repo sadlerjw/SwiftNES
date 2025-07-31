@@ -11,6 +11,7 @@ extension AddressingModes {
         
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
             let address = readAbsoluteBaseAddress(cpu: cpu)
+            cpu.fetchedFromAddress = address
             cpu.fetchedData = cpu.bus.read(address)
         }
         
@@ -26,6 +27,7 @@ extension AddressingModes {
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
             let baseAddress = readAbsoluteBaseAddress(cpu: cpu)
             let address = baseAddress &+ UInt16(cpu.x)
+            cpu.fetchedFromAddress = address
             cpu.fetchedData = cpu.bus.read(address)
             
             if addingCycleIfPageCrossed && address.isOnDifferentPage(from: baseAddress) {
@@ -46,6 +48,7 @@ extension AddressingModes {
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
             let baseAddress = readAbsoluteBaseAddress(cpu: cpu)
             let address = baseAddress &+ UInt16(cpu.y)
+            cpu.fetchedFromAddress = address
             cpu.fetchedData = cpu.bus.read(address)
             
             if addingCycleIfPageCrossed && address.isOnDifferentPage(from: baseAddress) {

@@ -16,26 +16,28 @@ import Testing
     }
     
     @Test func testNoAdditionalCycles() {
-        nes.ram.write(0xA9, at: 0x00)
-        cpu.pc = 0x00
+        nes.ram.write(0xA9, at: 0x01)
+        cpu.pc = 0x01
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
         #expect(cpu.fetchedData == 0xA9)
+        #expect(cpu.fetchedFromAddress == 0x01)
         #expect(cpu.cyclesBeforeNextInstruction == 2)
     }
     
     @Test func testAdditionalCycles() {
-        nes.ram.write(0xA9, at: 0x00)
-        cpu.pc = 0x00
+        nes.ram.write(0xA9, at: 0x01)
+        cpu.pc = 0x01
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         
         #expect(cpu.fetchedData == 0xA9)
+        #expect(cpu.fetchedFromAddress == 0x01)
         #expect(cpu.cyclesBeforeNextInstruction == 2)
     }
 }

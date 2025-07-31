@@ -14,19 +14,11 @@
 			remoteGlobalIDString = F5F26F5B2E394C08003CED20;
 			remoteInfo = "NES-iOS";
 		};
-		F5F26F732E394C09003CED20 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F5F26F192E3944C3003CED20 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F5F26F5B2E394C08003CED20;
-			remoteInfo = "NES-iOS";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		F5F26F5C2E394C08003CED20 /* NES-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NES-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5F26F682E394C09003CED20 /* NES-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NES-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		F5F26F722E394C09003CED20 /* NES-iOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NES-iOSUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -38,11 +30,6 @@
 		F5F26F6B2E394C09003CED20 /* NES-iOSTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "NES-iOSTests";
-			sourceTree = "<group>";
-		};
-		F5F26F752E394C09003CED20 /* NES-iOSUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "NES-iOSUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -62,13 +49,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F5F26F6F2E394C09003CED20 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -77,7 +57,6 @@
 			children = (
 				F5F26F5D2E394C08003CED20 /* NES-iOS */,
 				F5F26F6B2E394C09003CED20 /* NES-iOSTests */,
-				F5F26F752E394C09003CED20 /* NES-iOSUITests */,
 				F5F26F222E3944C3003CED20 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,7 +66,6 @@
 			children = (
 				F5F26F5C2E394C08003CED20 /* NES-iOS.app */,
 				F5F26F682E394C09003CED20 /* NES-iOSTests.xctest */,
-				F5F26F722E394C09003CED20 /* NES-iOSUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -140,29 +118,6 @@
 			productReference = F5F26F682E394C09003CED20 /* NES-iOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		F5F26F712E394C09003CED20 /* NES-iOSUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F5F26F802E394C09003CED20 /* Build configuration list for PBXNativeTarget "NES-iOSUITests" */;
-			buildPhases = (
-				F5F26F6E2E394C09003CED20 /* Sources */,
-				F5F26F6F2E394C09003CED20 /* Frameworks */,
-				F5F26F702E394C09003CED20 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F5F26F742E394C09003CED20 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				F5F26F752E394C09003CED20 /* NES-iOSUITests */,
-			);
-			name = "NES-iOSUITests";
-			packageProductDependencies = (
-			);
-			productName = "NES-iOSUITests";
-			productReference = F5F26F722E394C09003CED20 /* NES-iOSUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -177,10 +132,6 @@
 						CreatedOnToolsVersion = 26.0;
 					};
 					F5F26F672E394C09003CED20 = {
-						CreatedOnToolsVersion = 26.0;
-						TestTargetID = F5F26F5B2E394C08003CED20;
-					};
-					F5F26F712E394C09003CED20 = {
 						CreatedOnToolsVersion = 26.0;
 						TestTargetID = F5F26F5B2E394C08003CED20;
 					};
@@ -202,7 +153,6 @@
 			targets = (
 				F5F26F5B2E394C08003CED20 /* NES-iOS */,
 				F5F26F672E394C09003CED20 /* NES-iOSTests */,
-				F5F26F712E394C09003CED20 /* NES-iOSUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -216,13 +166,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F5F26F662E394C09003CED20 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F5F26F702E394C09003CED20 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -246,13 +189,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F5F26F6E2E394C09003CED20 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -260,11 +196,6 @@
 			isa = PBXTargetDependency;
 			target = F5F26F5B2E394C08003CED20 /* NES-iOS */;
 			targetProxy = F5F26F692E394C09003CED20 /* PBXContainerItemProxy */;
-		};
-		F5F26F742E394C09003CED20 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F5F26F5B2E394C08003CED20 /* NES-iOS */;
-			targetProxy = F5F26F732E394C09003CED20 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -505,51 +436,6 @@
 			};
 			name = Release;
 		};
-		F5F26F812E394C09003CED20 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SPV89U654R;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sadlerjw.NES-iOSUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "NES-iOS";
-			};
-			name = Debug;
-		};
-		F5F26F822E394C09003CED20 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SPV89U654R;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sadlerjw.NES-iOSUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "NES-iOS";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -576,15 +462,6 @@
 			buildConfigurations = (
 				F5F26F7E2E394C09003CED20 /* Debug */,
 				F5F26F7F2E394C09003CED20 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		F5F26F802E394C09003CED20 /* Build configuration list for PBXNativeTarget "NES-iOSUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F5F26F812E394C09003CED20 /* Debug */,
-				F5F26F822E394C09003CED20 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

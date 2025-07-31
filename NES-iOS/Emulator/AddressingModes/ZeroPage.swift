@@ -10,8 +10,9 @@ extension AddressingModes {
         static let sharedInstance = Self.init()
         
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            let zeroPageAddress = cpu.bus.read(cpu.pc)
-            cpu.fetchedData = cpu.bus.read(UInt16(zeroPageAddress))
+            let zeroPageAddress = Address(cpu.bus.read(cpu.pc))
+            cpu.fetchedFromAddress = zeroPageAddress
+            cpu.fetchedData = cpu.bus.read(zeroPageAddress)
         }
         
         func write(_ value: Byte, cpu: borrowing CPU) {
@@ -29,7 +30,9 @@ extension AddressingModes {
         }
         
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            cpu.fetchedData = cpu.bus.read(address(cpu: cpu))
+            let address = address(cpu: cpu)
+            cpu.fetchedFromAddress = address
+            cpu.fetchedData = cpu.bus.read(address)
         }
         
         func write(_ value: Byte, cpu: borrowing CPU) {
@@ -46,7 +49,9 @@ extension AddressingModes {
         }
         
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            cpu.fetchedData = cpu.bus.read(address(cpu: cpu))
+            let address = address(cpu: cpu)
+            cpu.fetchedFromAddress = address
+            cpu.fetchedData = cpu.bus.read(address)
         }
         
         func write(_ value: Byte, cpu: borrowing CPU) {

@@ -130,6 +130,7 @@ class CPU {
     var status: StatusRegister = .i
     
     var fetchedData: UInt8 = 0
+    var fetchedFromAddress: Address? = nil
     var cyclesBeforeNextInstruction = 0
     
     unowned let bus : MainBus
@@ -151,6 +152,7 @@ class CPU {
         status.insert(.i)
         
         fetchedData = 0
+        fetchedFromAddress = nil
         cyclesBeforeNextInstruction = 0
     }
     
@@ -160,6 +162,9 @@ class CPU {
         }
         
         guard cyclesBeforeNextInstruction == 0 else { return }
+        
+        fetchedData = 0
+        fetchedFromAddress = nil
         
         let opcode = bus.read(pc)
         pc += 1

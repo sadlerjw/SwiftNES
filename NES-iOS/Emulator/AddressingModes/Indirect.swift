@@ -17,7 +17,9 @@ extension AddressingModes {
         }
         
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            cpu.fetchedData = cpu.bus.read(address(cpu: cpu))
+            let address = address(cpu: cpu )
+            cpu.fetchedFromAddress = address
+            cpu.fetchedData = cpu.bus.read(address)
         }
         
         func write(_ value: Byte, cpu: borrowing CPU) {
@@ -49,7 +51,9 @@ extension AddressingModes {
         }
         
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            cpu.fetchedData = cpu.bus.read(address(cpu: cpu))
+            let address = address(cpu: cpu)
+            cpu.fetchedFromAddress = address
+            cpu.fetchedData = cpu.bus.read(address)
         }
         
         func write(_ value: Byte, cpu: borrowing CPU) {
@@ -78,6 +82,7 @@ extension AddressingModes {
             
             let pointerAddress = pointerBaseAddress + Address(cpu.y)
             
+            cpu.fetchedFromAddress = pointerAddress
             cpu.fetchedData = cpu.bus.read(pointerAddress)
             
             if addingCycleIfPageCrossed &&

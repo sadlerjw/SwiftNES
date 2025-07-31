@@ -10,6 +10,7 @@ extension AddressingModes {
         static let sharedInstance = Self.init()
         
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+            cpu.fetchedFromAddress = nil
             cpu.fetchedData = cpu.a
         }
         

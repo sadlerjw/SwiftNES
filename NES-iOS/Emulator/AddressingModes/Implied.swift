@@ -11,6 +11,7 @@ extension AddressingModes {
         
         func fetch(cpu: borrowing CPU) {
             // No-op!
+            cpu.fetchedFromAddress = nil
         }
         
         func write(_ value: Byte, cpu: borrowing CPU) {
