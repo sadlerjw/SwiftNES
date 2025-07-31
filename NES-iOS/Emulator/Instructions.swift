@@ -26,7 +26,7 @@ enum Instructions {
         AND.self, ADC.self, ASL.self, BCC.self, BCS.self, BEQ.self, BIT.self, BMI.self, BNE.self, BPL.self,
         BRK.self, BVC.self, BVS.self, CLC.self, CLD.self, CLI.self, CLV.self, CMP.self, CPX.self, CPY.self,
         DEC.self, DEX.self, DEY.self, EOR.self, INC.self, INX.self, INY.self, JMP.self, JSR.self, LDA.self,
-        LDX.self, LDY.self, LSR.self, NOP.self, ORA.self, PHA.self, PHP.self,
+        LDX.self, LDY.self, LSR.self, NOP.self, ORA.self, PHA.self, PHP.self, PLA.self, PLP.self,
     ]
     
     // Namespace for the various instructions

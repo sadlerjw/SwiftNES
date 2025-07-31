@@ -133,6 +133,9 @@ class CPU {
     var fetchedFromAddress: Address? = nil
     var cyclesBeforeNextInstruction = 0
     
+    var interruptsEnabled: Bool = false
+    var changingInterruptsEnabledShouldBeDelayed = false
+    
     unowned let bus : MainBus
     
     init(bus: MainBus) {
@@ -166,6 +169,9 @@ class CPU {
         fetchedData = 0
         fetchedFromAddress = nil
         
+        let interruptsEnabledAfterExecution : Bool? = changingInterruptsEnabledShouldBeDelayed ? status.contains(.i) : nil
+        changingInterruptsEnabledShouldBeDelayed = false
+        
         let opcode = bus.read(pc)
         pc += 1
         
@@ -181,6 +187,14 @@ class CPU {
         
         let instruction = opcodeReference.instruction
         let readModifyWriteResult = instruction.execute(cpu: self)
+        
+        if let interruptsEnabledAfterExecution {
+            interruptsEnabled = interruptsEnabledAfterExecution
+        }
+        
+        if !changingInterruptsEnabledShouldBeDelayed {
+            interruptsEnabled = status.contains(.i)
+        }
         
         if let readModifyWriteResult {
             // First we write back the original value, then the updated one.
