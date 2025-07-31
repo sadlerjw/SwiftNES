@@ -8,7 +8,7 @@
 import Testing
 @testable import NES_iOS
 
-struct CpuRegisterTests {
+@MainActor struct CpuRegisterTests {
 
     @Test func CPURegistersAtStartup() {
         let nes = NES()
@@ -20,7 +20,7 @@ struct CpuRegisterTests {
         #expect(nes.cpu.x == 0)
         #expect(nes.cpu.y == 0)
         #expect(nes.cpu.pc == 0x12DE)
-        #expect(nes.cpu.stackPointer == 0xFD)
+        #expect(nes.cpu.stack.stackPointer == 0xFD)
         #expect(nes.cpu.status == .i)
     }
     
@@ -37,7 +37,7 @@ struct CpuRegisterTests {
         nes.cpu.x = 0x12
         nes.cpu.y = 0x34
         nes.cpu.pc = 0x1234
-        nes.cpu.stackPointer = 0xAB
+        nes.cpu.stack.stackPointer = 0xAB
         nes.cpu.status = [.c, .d, .n]
         
         nes.cpu.reset()
@@ -46,7 +46,7 @@ struct CpuRegisterTests {
         #expect(nes.cpu.x == 0x12)
         #expect(nes.cpu.y == 0x34)
         #expect(nes.cpu.pc == 0x12DE)
-        #expect(nes.cpu.stackPointer == 0xA8)
+        #expect(nes.cpu.stack.stackPointer == 0xA8)
         #expect(nes.cpu.status == [.c, .d, .n, .i])
     }
 

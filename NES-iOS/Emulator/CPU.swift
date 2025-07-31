@@ -93,13 +93,40 @@ class CPU {
             }
         }
     }
+    
+    struct Stack {
+        unowned let bus : MainBus
+        let baseAddress: Address = 0x0100
+        var stackPointer: Byte = 0
+        
+        mutating func push(_ value: Byte) {
+            bus.write(value, at: baseAddress + Address(stackPointer))
+            stackPointer -= 1
+        }
+        
+        mutating func push(_ value: Address) {
+            push(value.high)
+            push(value.low)
+        }
+        
+        mutating func popByte() -> Byte {
+            stackPointer += 1
+            return bus.read(baseAddress + Address(stackPointer))
+        }
+        
+        mutating func popAddress() -> Address {
+            let low = popByte()
+            let high = popByte()
+            return Address(low: low, high: high)
+        }
+    }
 
     var a: UInt8 = 0
     var x: UInt8 = 0
     var y: UInt8 = 0
     
     var pc: UInt16 = 0xFFFC
-    var stackPointer: UInt8 = 0
+    var stack : Stack
     var status: StatusRegister = .i
     
     var fetchedData: UInt8 = 0
@@ -109,6 +136,7 @@ class CPU {
     
     init(bus: MainBus) {
         self.bus = bus
+        self.stack = Stack(bus: bus)
     }
     
     func startup() {
@@ -119,7 +147,7 @@ class CPU {
         let low = bus.read(0xFFFC)
         let high = bus.read(0xFFFD)
         pc = UInt16(low) | (UInt16(high) << 8)
-        stackPointer &-= 3
+        stack.stackPointer &-= 3    // Means on startup it starts at 0x00 - 3 = 0xFD
         status.insert(.i)
         
         fetchedData = 0

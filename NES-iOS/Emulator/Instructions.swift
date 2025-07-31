@@ -24,7 +24,7 @@ extension Instruction {
 
 enum Instructions {
     static let all : [Instruction.Type] = [
-        AND.self, ASL.self, BCC.self, BCS.self, BEQ.self, BIT.self, BMI.self, BNE.self, BPL.self,
+        AND.self, ASL.self, BCC.self, BCS.self, BEQ.self, BIT.self, BMI.self, BNE.self, BPL.self, BRK.self,
         LDA.self, LDX.self, ADC.self, DEX.self, CLC.self, NOP.self
     ]
     

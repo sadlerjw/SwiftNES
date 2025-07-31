@@ -37,6 +37,14 @@ extension Address {
         self = UInt16(high) << 8 | UInt16(low)
     }
     
+    var low: Byte {
+        return Byte(self & 0xFF)
+    }
+    
+    var high: Byte {
+        return Byte(self >> 8)
+    }
+    
     func isOnDifferentPage(from otherAddress: Address) -> Bool {
         return self & 0xFF00 != otherAddress & 0xFF00
     }
