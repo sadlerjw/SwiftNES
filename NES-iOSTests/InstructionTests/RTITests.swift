@@ -8,30 +8,34 @@
 import Testing
 @testable import NES_iOS
 
-@MainActor struct PLPTests {
+@MainActor struct RTITests {
     let nes = NES()
-    let plp = Instructions.PLP()
+    let rti = Instructions.RTI()
     var cpu: CPU {
         return nes.cpu
     }
     
     @Test func testNoB() async throws {
         nes.startup()
+        cpu.stack.push(Address(0x1234))
         cpu.stack.push(CPU.StatusRegister(arrayLiteral: [.c, .n, .z]).rawValue)
         
-        plp.execute(cpu: cpu)
+        rti.execute(cpu: cpu)
         
         #expect(cpu.status == [.c, .n, .z, .one_unused])
-        #expect(cpu.changingInterruptsEnabledShouldBeDelayed)
+        #expect(cpu.pc == 0x1234)
+        #expect(!cpu.changingInterruptsEnabledShouldBeDelayed)
     }
     
     @Test func testB() async throws {
         nes.startup()
+        cpu.stack.push(Address(0x1234))
         cpu.stack.push(CPU.StatusRegister(arrayLiteral: [.n, .b]).rawValue)
         
-        plp.execute(cpu: cpu)
+        rti.execute(cpu: cpu)
         
         #expect(cpu.status == [.n, .one_unused])
-        #expect(cpu.changingInterruptsEnabledShouldBeDelayed)
+        #expect(cpu.pc == 0x1234)
+        #expect(!cpu.changingInterruptsEnabledShouldBeDelayed)
     }
 }
