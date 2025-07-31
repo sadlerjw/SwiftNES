@@ -6,11 +6,11 @@
 //
 
 extension Instructions {
-    struct CLD : ModifyFlagInstruction {
+    struct CLI : ModifyFlagInstruction {
         static let sharedInstance = Self.init()
         
         static let opcodeReferences : [OpcodeReference] = [
-            .init(opcode: 0xD8,
+            .init(opcode: 0x58,
                   totalBytes: 1,
                   defaultCycles: 2,
                   instruction: Self.sharedInstance,
@@ -18,6 +18,6 @@ extension Instructions {
         ]
         
         let set = false
-        let flag = CPU.StatusRegister.d
+        let flag = CPU.StatusRegister.i
     }
 }

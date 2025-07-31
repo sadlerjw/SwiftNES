@@ -6,7 +6,7 @@
 //
 
 extension Instructions {
-    struct CLC : Instruction {
+    struct CLC : ModifyFlagInstruction {
         static let sharedInstance = Self.init()
         
         static let opcodeReferences : [OpcodeReference] = [
@@ -17,9 +17,7 @@ extension Instructions {
                   addressingMode: AddressingModes.Implied.sharedInstance),
         ]
         
-        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-            cpu.status.setC(false)
-            return nil
-        }
+        let set = false
+        let flag = CPU.StatusRegister.c
     }
 }
