@@ -9,13 +9,19 @@ extension AddressingModes {
     struct Indirect : AddressingMode {
         static let sharedInstance = Self.init()
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+        private func address(cpu: CPU) -> Address {
             let addressOfPointer = readAbsoluteBaseAddress(cpu: cpu)
             let pointerAddressLow = cpu.bus.read(addressOfPointer)
             let pointerAddressHigh = cpu.bus.read(addressOfPointer + 1)
-            let pointerAddress = Address(low: pointerAddressLow, high: pointerAddressHigh)
-            
-            cpu.fetchedData = cpu.bus.read(pointerAddress)
+            return Address(low: pointerAddressLow, high: pointerAddressHigh)
+        }
+        
+        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+            cpu.fetchedData = cpu.bus.read(address(cpu: cpu))
+        }
+        
+        func write(_ value: Byte, cpu: borrowing CPU) {
+            cpu.bus.write(value, at: address(cpu: cpu))
         }
     }
     
@@ -33,15 +39,21 @@ extension AddressingModes {
     struct IndirectX : AddressingMode {
         static let sharedInstance = Self.init()
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+        private func address(cpu: CPU) -> Address {
             let zeroPageBaseAddress = cpu.bus.read(cpu.pc)
             let zeroPageAddress = zeroPageBaseAddress &+ cpu.x
             
             let pointerAddressLow = cpu.bus.read(Address(zeroPageAddress))
             let pointerAddressHigh = cpu.bus.read(Address(zeroPageAddress &+ 1))
-            let pointerAddress = Address(low: pointerAddressLow, high: pointerAddressHigh)
-            
-            cpu.fetchedData = cpu.bus.read(pointerAddress)
+            return Address(low: pointerAddressLow, high: pointerAddressHigh)
+        }
+        
+        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+            cpu.fetchedData = cpu.bus.read(address(cpu: cpu))
+        }
+        
+        func write(_ value: Byte, cpu: borrowing CPU) {
+            cpu.bus.write(value, at: address(cpu: cpu))
         }
     }
     
@@ -72,6 +84,18 @@ extension AddressingModes {
                 pointerAddress.isOnDifferentPage(from: pointerBaseAddress) {
                 cpu.cyclesBeforeNextInstruction += 1
             }
+        }
+        
+        func write(_ value: Byte, cpu: borrowing CPU) {
+            let zeroPageAddress = cpu.bus.read(cpu.pc)
+            
+            let pointerBaseAddressLow = cpu.bus.read(Address(zeroPageAddress))
+            let pointerBaseAddressHigh = cpu.bus.read(Address(zeroPageAddress &+ 1))
+            let pointerBaseAddress = Address(low: pointerBaseAddressLow, high: pointerBaseAddressHigh)
+            
+            let pointerAddress = pointerBaseAddress + Address(cpu.y)
+            
+            cpu.bus.write(value, at: pointerAddress)
         }
     }
 }

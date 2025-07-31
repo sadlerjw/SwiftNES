@@ -17,10 +17,12 @@ extension Instructions {
                   addressingMode: AddressingModes.Implied.sharedInstance),
         ]
         
-        func execute(cpu: borrowing CPU) {
+        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             cpu.x &-= 1
             cpu.status.setZ(cpu.x == 0)
             cpu.status.setN(cpu.x >> 7 == 1)
+            
+            return nil
         }
     }
 }

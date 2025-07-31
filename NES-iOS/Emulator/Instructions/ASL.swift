@@ -1,50 +1,51 @@
 //
-//  LDX.swift
-//  SwiftNES
+//  ASL.swift
+//  NES-iOS
 //
 //  Created by Jason Sadler on 2025-07-30.
 //
 
 extension Instructions {
-    struct LDX : Instruction {
+    struct ASL : Instruction {
         static let sharedInstance = Self.init()
         
         static let opcodeReferences : [OpcodeReference] = [
-            .init(opcode: 0xA2,
-                  totalBytes: 2,
+            .init(opcode: 0x0A,
+                  totalBytes: 1,
                   defaultCycles: 2,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Immediate.sharedInstance),
-            .init(opcode: 0xA6,
+                  addressingMode: AddressingModes.Implied.sharedInstance),
+            .init(opcode: 0x06,
                   totalBytes: 2,
-                  defaultCycles: 3,
+                  defaultCycles: 5,
                   instruction: Self.sharedInstance,
                   addressingMode: AddressingModes.ZeroPage.sharedInstance),
-            .init(opcode: 0xB6,
+            .init(opcode: 0x16,
                   totalBytes: 2,
-                  defaultCycles: 4,
+                  defaultCycles: 6,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.ZeroPageY.sharedInstance),
-            .init(opcode: 0xAE,
+                  addressingMode: AddressingModes.ZeroPageX.sharedInstance),
+            .init(opcode: 0x0E,
                   totalBytes: 3,
-                  defaultCycles: 4,
+                  defaultCycles: 6,
                   instruction: Self.sharedInstance,
                   addressingMode: AddressingModes.Absolute.sharedInstance),
-            .init(opcode: 0xBE,
+            .init(opcode: 0x1E,
                   totalBytes: 3,
-                  defaultCycles: 4,
-                  addsCycleIfPageCrossed: true,
+                  defaultCycles: 7,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.AbsoluteY.sharedInstance),
+                  addressingMode: AddressingModes.AbsoluteX.sharedInstance),
+            
         ]
         
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-            cpu.x = cpu.fetchedData
+            let result = cpu.fetchedData << 1
             
-            cpu.status.setZ(cpu.fetchedData == 0)
-            cpu.status.setN(cpu.fetchedData >> 7 == 1)
+            cpu.status.setC(cpu.fetchedData & 0x80 != 0)
+            cpu.status.setZ(result == 0)
+            cpu.status.setN(result & 0x80 != 0)
             
-            return nil
+            return result
         }
     }
 }

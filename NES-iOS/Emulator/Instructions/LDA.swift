@@ -58,11 +58,13 @@ extension Instructions {
             
         ]
         
-        func execute(cpu: borrowing CPU) {
+        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             cpu.a = cpu.fetchedData
             
             cpu.status.setZ(cpu.fetchedData == 0)
             cpu.status.setN(cpu.fetchedData >> 7 == 1)
+            
+            return nil
         }
     }
 }

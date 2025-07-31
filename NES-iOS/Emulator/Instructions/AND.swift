@@ -57,11 +57,13 @@ extension Instructions {
                   addressingMode: AddressingModes.IndirectY.sharedInstance),
         ]
         
-        func execute(cpu: borrowing CPU) {
+        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             cpu.a = cpu.a & cpu.fetchedData
             
             cpu.status.setZ(cpu.a == 0)
             cpu.status.setN(cpu.a & 0x80 != 0)
+            
+            return 0
         }
     }
 }

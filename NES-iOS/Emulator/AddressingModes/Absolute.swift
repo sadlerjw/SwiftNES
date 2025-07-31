@@ -13,6 +13,11 @@ extension AddressingModes {
             let address = readAbsoluteBaseAddress(cpu: cpu)
             cpu.fetchedData = cpu.bus.read(address)
         }
+        
+        func write(_ value: Byte, cpu: borrowing CPU) {
+            let address = readAbsoluteBaseAddress(cpu: cpu)
+            cpu.bus.write(value, at: address)
+        }
     }
     
     struct AbsoluteX : AddressingMode {
@@ -27,6 +32,12 @@ extension AddressingModes {
                 cpu.cyclesBeforeNextInstruction += 1
             }
         }
+        
+        func write(_ value: Byte, cpu: borrowing CPU) {
+            let baseAddress = readAbsoluteBaseAddress(cpu: cpu)
+            let address = baseAddress &+ UInt16(cpu.x)
+            cpu.bus.write(value, at: address)
+        }
     }
     
     struct AbsoluteY : AddressingMode {
@@ -40,6 +51,12 @@ extension AddressingModes {
             if addingCycleIfPageCrossed && address.isOnDifferentPage(from: baseAddress) {
                 cpu.cyclesBeforeNextInstruction += 1
             }
+        }
+        
+        func write(_ value: Byte, cpu: borrowing CPU) {
+            let baseAddress = readAbsoluteBaseAddress(cpu: cpu)
+            let address = baseAddress &+ UInt16(cpu.y)
+            cpu.bus.write(value, at: address)
         }
     }
 }

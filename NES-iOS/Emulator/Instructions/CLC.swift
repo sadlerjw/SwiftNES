@@ -17,8 +17,9 @@ extension Instructions {
                   addressingMode: AddressingModes.Implied.sharedInstance),
         ]
         
-        func execute(cpu: borrowing CPU) {
+        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             cpu.status.setC(false)
+            return nil
         }
     }
 }

@@ -18,7 +18,7 @@ extension Instructions {
                   addressingMode: AddressingModes.Immediate.sharedInstance),
         ]
         
-        func execute(cpu: borrowing CPU) {
+        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             let willBranch = !cpu.status.contains(.z)
             
             if willBranch {
@@ -34,6 +34,8 @@ extension Instructions {
                 
                 cpu.pc = newPC
             }
+            
+            return nil
         }
     }
 }

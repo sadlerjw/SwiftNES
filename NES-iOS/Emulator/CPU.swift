@@ -147,7 +147,18 @@ class CPU {
         addressingMode.fetch(cpu: self, addingCycleIfPageCrossed: opcodeReference.addsCycleIfPageCrossed)
         
         let instruction = opcodeReference.instruction
-        instruction.execute(cpu: self)
+        let readModifyWriteResult = instruction.execute(cpu: self)
+        
+        if let readModifyWriteResult {
+            // First we write back the original value, then the updated one.
+            // This comes from a note from https://www.nesdev.org/wiki/Instruction_reference#ASL:
+            // > This is a read-modify-write instruction, meaning that its
+            // > addressing modes that operate on memory first write the
+            // > original value back to memory before the modified value.
+            // > This extra write can matter if targeting a hardware register.
+            addressingMode.write(fetchedData, cpu: self)
+            addressingMode.write(readModifyWriteResult, cpu: self)
+        }
     }
 }
 

@@ -12,5 +12,9 @@ extension AddressingModes {
         func fetch(cpu: borrowing CPU) {
             // No-op!
         }
+        
+        func write(_ value: Byte, cpu: borrowing CPU) {
+            fatalError("Trying to write using implied addressing mode")
+        }
     }
 }

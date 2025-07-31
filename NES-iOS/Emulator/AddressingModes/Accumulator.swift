@@ -1,21 +1,20 @@
 //
-//  Immediate.swift
-//  SwiftNES
+//  Accumulator.swift
+//  NES-iOS
 //
 //  Created by Jason Sadler on 2025-07-30.
 //
 
 extension AddressingModes {
-    struct Immediate : AddressingMode {
+    struct Accumulator : AddressingMode {
         static let sharedInstance = Self.init()
         
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            cpu.fetchedData = cpu.bus.read(cpu.pc)
-            cpu.pc += 1
+            cpu.fetchedData = cpu.a
         }
         
         func write(_ value: Byte, cpu: borrowing CPU) {
-            fatalError("Trying to write using immediate addressing mode")
+            cpu.a = value
         }
     }
 }

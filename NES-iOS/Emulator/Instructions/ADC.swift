@@ -56,7 +56,7 @@ extension Instructions {
                   addressingMode: AddressingModes.IndirectY.sharedInstance),
         ]
         
-        func execute(cpu: borrowing CPU) {
+        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             let result = UInt16(cpu.a) &+ UInt16(cpu.fetchedData) &+ UInt16(cpu.status.contains(.c) ? 1 : 0)
             
             cpu.status.setC(result > 255)
@@ -68,6 +68,8 @@ extension Instructions {
             cpu.status.setN(truncatedResult >> 7 == 1)
             
             cpu.a = truncatedResult
+            
+            return nil
         }
     }
 }

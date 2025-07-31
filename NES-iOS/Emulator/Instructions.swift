@@ -6,11 +6,14 @@
 //
 
 protocol Instruction {
+    typealias ReadModifyWriteResult = Byte
+    
     static var sharedInstance : Self { get }
     static var opcodeReferences : [OpcodeReference] { get }
     var name : String { get }
     
-    func execute(cpu: borrowing CPU)
+    @discardableResult
+    func execute(cpu: borrowing CPU) -> ReadModifyWriteResult?
 }
 
 extension Instruction {
@@ -21,7 +24,7 @@ extension Instruction {
 
 enum Instructions {
     static let all : [Instruction.Type] = [
-        AND.self, LDA.self, LDX.self, ADC.self, DEX.self, CLC.self, NOP.self, BNE.self
+        AND.self, ASL.self, LDA.self, LDX.self, ADC.self, DEX.self, CLC.self, NOP.self, BNE.self
     ]
     
     // Namespace for the various instructions

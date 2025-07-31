@@ -1,5 +1,5 @@
 //
-//  ImmediateTests.swift
+//  AccumulatorTests.swift
 //  NES-iOSTests
 //
 //  Created by Jason Sadler on 2025-07-30.
@@ -8,16 +8,15 @@
 import Testing
 @testable import NES_iOS
 
-@MainActor struct ImmediateTests {
+@MainActor struct AccumulatorTests {
     let nes = NES()
-    let mode = AddressingModes.Immediate()
+    let mode = AddressingModes.Accumulator()
     var cpu: CPU {
         return nes.cpu
     }
     
     @Test func testNoAdditionalCycles() {
-        nes.ram.write(0xA9, at: 0x00)
-        cpu.pc = 0x00
+        cpu.a = 0xA9
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
@@ -28,8 +27,7 @@ import Testing
     }
     
     @Test func testAdditionalCycles() {
-        nes.ram.write(0xA9, at: 0x00)
-        cpu.pc = 0x00
+        cpu.a = 0xA9
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         

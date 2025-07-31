@@ -10,6 +10,7 @@ protocol AddressingMode {
     var name : String { get }
     
     func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool)
+    func write(_ value: Byte, cpu: borrowing CPU)
 }
 
 extension AddressingMode {
