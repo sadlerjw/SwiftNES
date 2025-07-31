@@ -26,7 +26,7 @@ enum Instructions {
     static let all : [Instruction.Type] = [
         AND.self, ASL.self, BCC.self, BCS.self, BEQ.self, BIT.self, BMI.self, BNE.self, BPL.self, BRK.self,
         BVC.self, BVS.self, CLC.self, CLD.self, CLI.self, CLV.self, CMP.self, CPX.self, CPY.self, DEC.self,
-        DEX.self, DEY.self, EOR.self, INC.self,
+        DEX.self, DEY.self, EOR.self, INC.self, INX.self, INY.self,
         LDA.self, LDX.self, ADC.self, NOP.self
     ]
     
