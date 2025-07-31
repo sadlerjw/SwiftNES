@@ -1,0 +1,77 @@
+//
+//  BITTests.swift
+//  NES-iOSTests
+//
+//  Created by Jason Sadler on 2025-07-30.
+//
+
+import Testing
+@testable import NES_iOS
+
+@MainActor struct CPXTests {
+    let nes = NES()
+    let cpx = Instructions.CPX()
+    var cpu: CPU {
+        return nes.cpu
+    }
+
+    @Test func testZero() async throws {
+        cpu.status.remove(.c)
+        cpu.status.remove(.z)
+        cpu.status.insert(.n)
+        
+        cpu.x = 89
+        cpu.fetchedData = 89
+        
+        cpx.execute(cpu: cpu)
+        
+        #expect(cpu.status.contains(.c))
+        #expect(cpu.status.contains(.z))
+        #expect(!cpu.status.contains(.n))
+    }
+    
+    @Test func testNonZeroCarry() async throws {
+        cpu.status.remove(.c)
+        cpu.status.insert(.z)
+        cpu.status.insert(.n)
+        
+        cpu.x = 89
+        cpu.fetchedData = 43
+        
+        cpx.execute(cpu: cpu)
+        
+        #expect(cpu.status.contains(.c))
+        #expect(!cpu.status.contains(.z))
+        #expect(!cpu.status.contains(.n))
+    }
+    
+    @Test func testNegative() async throws {
+        cpu.status.insert(.c)
+        cpu.status.insert(.z)
+        cpu.status.remove(.n)
+        
+        cpu.x = 89
+        cpu.fetchedData = 121
+        
+        cpx.execute(cpu: cpu)
+        
+        #expect(!cpu.status.contains(.c))
+        #expect(!cpu.status.contains(.z))
+        #expect(cpu.status.contains(.n))
+    }
+    
+    @Test func testCarryNegative() async throws {
+        cpu.status.remove(.c)
+        cpu.status.remove(.z)
+        cpu.status.insert(.n)
+        
+        cpu.x = 223
+        cpu.fetchedData = 39
+        
+        cpx.execute(cpu: cpu)
+        
+        #expect(cpu.status.contains(.c))
+        #expect(!cpu.status.contains(.z))
+        #expect(cpu.status.contains(.n))
+    }
+}
