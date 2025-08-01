@@ -37,6 +37,10 @@ class CPU {
             internalRawValue = rawValue | Self.alwaysOneRawValue
         }
         
+        var debugDescription: String {
+            return "\(contains(.n) ? "N" : "n") \(contains(.o) ? "O" : "o") \(contains(.one_unused) ? "1" : "_") \(contains(.b) ? "B" : "b") \(contains(.d) ? "D" : "d") \(contains(.i) ? "I" : "i") \(contains(.z) ? "Z" : "z") \(contains(.c) ? "C" : "c")"
+        }
+        
         mutating func setC(_ c: Bool) {
             if c {
                 self.insert(.c)

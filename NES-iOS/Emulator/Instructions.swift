@@ -28,6 +28,7 @@ enum Instructions {
         DEC.self, DEX.self, DEY.self, EOR.self, INC.self, INX.self, INY.self, JMP.self, JSR.self, LDA.self,
         LDX.self, LDY.self, LSR.self, NOP.self, ORA.self, PHA.self, PHP.self, PLA.self, PLP.self, ROL.self,
         ROR.self, RTI.self, RTS.self, SBC.self, SEC.self, SED.self, SEI.self, STA.self, STX.self, STY.self,
+        TAX.self, TAY.self, TSX.self, TXA.self, TXS.self, TYA.self
     ]
     
     // Namespace for the various instructions
