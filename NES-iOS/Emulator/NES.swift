@@ -14,11 +14,71 @@ typealias Byte = UInt8
 class NES {
     let mainBus = MainBus()
     let cpu : CPU
-    let ram : RAM<0x10000>
     
-    init () {
-        ram = RAM<0x10000>()
-        mainBus.addDevice(ram, at: 0x0000)
+    /// Sets up a full NES emulator stack. `startup()` should be called before use.
+    /// - Parameter allRam: Set up a huge bank of RAM on the main bus instead of mapping devices.
+    ///                         Should be used only for unit tests or debugging.
+    init(allRAM: Bool = false) {
+        if allRAM {
+            let ram = RAM<0x10000>()
+            mainBus.addDevice(ram, at: 0x0000)
+        } else {
+            let ram = RAM<0x800>()
+            let ramMirror = Mirror(mirroring: ram, times: 3)
+            mainBus.addDevice(ramMirror, at: 0x0000)
+            
+            let ppuRegisters = RAM<0x08>()  // TODO: use a real PPU instead of mocking RAM
+            let ppuMirror = Mirror(mirroring: ppuRegisters, times: 1023)
+            mainBus.addDevice(ppuMirror, at: 0x2000)
+            
+            let apuRegisters = RAM<0x14>()  // TODO: use a real APU
+            mainBus.addDevice(apuRegisters, at: 0x4000)
+            
+            let oamDMA = RAM<0x01>()        // TODO: have PPU(CPU?) expose this as an `Addressable`
+            mainBus.addDevice(oamDMA, at: 0x4014)
+            
+            let soundChannelsEnable = RAM<0x01>()  // TODO: should be part of APU, I think
+            mainBus.addDevice(soundChannelsEnable, at: 0x4015)
+            
+            // This is pretty confusing...maybe ALL of it should be moved to the APU and have
+            // it vend another addressable for it
+            let joystickAndIRQAndAPUFrameCounter = ClosureAddressable(length: 3,
+                                                                      name: "Joystick / IRQ / APU Frame Counter") { value, offset in
+                switch offset {
+                case 0:
+                    // TODO: APU enable/disable sound channels https://www.nesdev.org/wiki/APU#Status_($4015)
+                    break
+                case 1:
+                    // TODO: output to both controllers https://www.nesdev.org/wiki/Input_devices#Usage_of_port_pins_by_hardware_type
+                    break
+                case 2:
+                    // TODO: APU frame counter control https://www.nesdev.org/wiki/APU_Frame_Counter
+                    break
+                default:
+                    fatalError("Received impossible offset \(offset) in Joystick/IRQ/FrameCounter addressable")
+                }
+            } read: { offset in
+                switch offset {
+                case 0:
+                    // TODO: APU interrupt and sound channel status https://www.nesdev.org/wiki/APU#Status_($4015)
+                    return 0
+                case 1:
+                    // TODO: read controller 1
+                    return 0
+                case 2:
+                    // TODO: read controller 2
+                    return 0
+                default:
+                    fatalError("Received impossible offset \(offset) in Joystick/IRQ/FrameCounter addressable")
+                }
+            }
+            
+            // $4018–$401F are for CPU test mode, so unused for us.
+            
+            let cartridge = RAM<0xBFE0>()       // TODO: real cartridges and mappers
+            mainBus.addDevice(cartridge, at: 0x4020)
+
+        }
         cpu = CPU(bus: mainBus)
     }
     
@@ -42,15 +102,15 @@ class NES {
             0xD0, 0xFB, 0xEA, 0xEA, 0xEA
         ]
         
-        var offset : BusDevice.Offset = 0x8000
+        var offset : Addressable.Offset = 0x8000
         for byte in program {
-            ram.write(byte, at: offset)
+            mainBus.write(byte, at: offset)
             offset += 1
         }
         
         // Write reset vector (pointing at 0x8000, the beginning of our program)
-        ram.write(0x00, at: 0xFFFC)
-        ram.write(0x80, at: 0xFFFD)
+        mainBus.write(0x00, at: 0xFFFC)
+        mainBus.write(0x80, at: 0xFFFD)
     }
     
     func startup() {

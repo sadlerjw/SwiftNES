@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct CLVTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let clv = Instructions.CLV()
     var cpu: CPU {
         return nes.cpu

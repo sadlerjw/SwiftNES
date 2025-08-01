@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct AccumulatorTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let mode = AddressingModes.Accumulator()
     var cpu: CPU {
         return nes.cpu

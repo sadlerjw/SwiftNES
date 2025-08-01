@@ -22,12 +22,4 @@ extension Bus where Source == Void {
     }
 }
 
-protocol BusDevice : AnyObject {
-    typealias Offset = Address
-    
-    var length : Int { get }
-    var name : String { get }
-    
-    func write(_ value: Byte, at offset: Offset)
-    func read(at offset: Offset) -> Byte
-}
+

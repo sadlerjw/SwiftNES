@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct DEXTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let dex = Instructions.DEX()
     var cpu: CPU {
         return nes.cpu

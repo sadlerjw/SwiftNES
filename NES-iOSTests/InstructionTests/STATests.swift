@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct STATests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let sta = Instructions.STA()
     var cpu: CPU {
         return nes.cpu

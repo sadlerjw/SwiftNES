@@ -14,7 +14,7 @@ struct NESDebuggingView: View {
     var ramSection: some View {
         Section("RAM") {
             ForEach(0x8000 ..< 0x8010) { address in
-                let value = nes.ram.read(at: UInt16(address))
+                let value = nes.mainBus.read(UInt16(address))
                 let isNextInstruction = address == nes.cpu.pc
                 let backgroundStyle = isNextInstruction ? AnyShapeStyle(Color.green) : AnyShapeStyle(.background)
                 LabeledContent(String(format: " %04X", address), value: "\(String(format: " %04X", value)) | \(OpcodeReference.lookupTable[value]?.instruction.name ?? "Invalid")")

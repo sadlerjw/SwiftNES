@@ -21,7 +21,7 @@ struct MockBranchInstruction : BranchInstruction {
 }
 
 @MainActor struct BranchInstructionTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     var cpu: CPU {
         return nes.cpu
     }

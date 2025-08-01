@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct CPXTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let cpx = Instructions.CPX()
     var cpu: CPU {
         return nes.cpu

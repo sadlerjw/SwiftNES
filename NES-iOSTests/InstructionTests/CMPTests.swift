@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct CMPTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let cmp = Instructions.CMP()
     var cpu: CPU {
         return nes.cpu

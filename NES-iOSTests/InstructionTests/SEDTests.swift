@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct SEDTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let sed = Instructions.SED()
     var cpu: CPU {
         return nes.cpu

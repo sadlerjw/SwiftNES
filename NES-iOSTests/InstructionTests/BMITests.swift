@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct BMITests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let bmi = Instructions.BMI()
     var cpu: CPU {
         return nes.cpu

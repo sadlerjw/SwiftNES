@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct EORTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let eor = Instructions.EOR()
     var cpu: CPU {
         return nes.cpu

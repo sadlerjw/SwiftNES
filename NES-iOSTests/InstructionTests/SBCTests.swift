@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct SBCTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let sbc = Instructions.SBC()
     var cpu: CPU {
         return nes.cpu

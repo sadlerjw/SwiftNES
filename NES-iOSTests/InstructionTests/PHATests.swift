@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct PHATests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let pha = Instructions.PHA()
     var cpu: CPU {
         return nes.cpu

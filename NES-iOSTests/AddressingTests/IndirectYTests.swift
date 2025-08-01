@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct IndirectYTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let mode = AddressingModes.IndirectY()
     var cpu: CPU {
         return nes.cpu
@@ -17,18 +17,18 @@ import Testing
     
     @Test func testNoAdditionalCyclesNoPageBreak() {
         // Write the address of the zero-page pointer at the PC
-        nes.ram.write(0xE0, at: 0x01)
+        nes.mainBus.write(0xE0, at: 0x01)
         cpu.pc = 0x01
         cpu.y = 0x04
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
         // Write the pointer that we'll access
-        nes.ram.write(0xCD, at: 0xE0)
-        nes.ram.write(0xAB, at: 0xE1)
+        nes.mainBus.write(0xCD, at: 0xE0)
+        nes.mainBus.write(0xAB, at: 0xE1)
         
         // Write the value that the above pointer points to
-        nes.ram.write(0xA9, at: 0xABD1)
+        nes.mainBus.write(0xA9, at: 0xABD1)
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
@@ -39,18 +39,18 @@ import Testing
     
     @Test func testAdditionalCyclesNoPageBreak() {
         // Write the address of the zero-page pointer at the PC
-        nes.ram.write(0xE0, at: 0x01)
+        nes.mainBus.write(0xE0, at: 0x01)
         cpu.pc = 0x01
         cpu.y = 0x04
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
         // Write the pointer that we'll access
-        nes.ram.write(0xCD, at: 0xE0)
-        nes.ram.write(0xAB, at: 0xE1)
+        nes.mainBus.write(0xCD, at: 0xE0)
+        nes.mainBus.write(0xAB, at: 0xE1)
         
         // Write the value that the above pointer points to
-        nes.ram.write(0xA9, at: 0xABD1)
+        nes.mainBus.write(0xA9, at: 0xABD1)
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         
@@ -61,18 +61,18 @@ import Testing
     
     @Test func testNoAdditionalCyclesWithPageBreak() {
         // Write the address of the zero-page pointer at the PC
-        nes.ram.write(0xE0, at: 0x01)
+        nes.mainBus.write(0xE0, at: 0x01)
         cpu.pc = 0x01
         cpu.y = 0x45
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
         // Write the pointer that we'll access
-        nes.ram.write(0xCD, at: 0xE0)
-        nes.ram.write(0xAB, at: 0xE1)
+        nes.mainBus.write(0xCD, at: 0xE0)
+        nes.mainBus.write(0xAB, at: 0xE1)
         
         // Write the value that the above pointer points to
-        nes.ram.write(0xA9, at: 0xAC12)
+        nes.mainBus.write(0xA9, at: 0xAC12)
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
@@ -83,18 +83,18 @@ import Testing
     
     @Test func testAdditionalCyclesWithPageBreak() {
         // Write the address of the zero-page pointer at the PC
-        nes.ram.write(0xE0, at: 0x01)
+        nes.mainBus.write(0xE0, at: 0x01)
         cpu.pc = 0x01
         cpu.y = 0x45
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
         // Write the pointer that we'll access
-        nes.ram.write(0xCD, at: 0xE0)
-        nes.ram.write(0xAB, at: 0xE1)
+        nes.mainBus.write(0xCD, at: 0xE0)
+        nes.mainBus.write(0xAB, at: 0xE1)
         
         // Write the value that the above pointer points to
-        nes.ram.write(0xA9, at: 0xAC12)
+        nes.mainBus.write(0xA9, at: 0xAC12)
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         

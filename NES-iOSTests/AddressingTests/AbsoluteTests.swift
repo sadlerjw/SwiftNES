@@ -9,20 +9,20 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct AbsoluteTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let mode = AddressingModes.Absolute()
     var cpu: CPU {
         return nes.cpu
     }
 
     @Test func testNoAdditionalCycles() {
-        nes.ram.write(0x12, at: 0x01)
-        nes.ram.write(0xEE, at: 0x02)
+        nes.mainBus.write(0x12, at: 0x01)
+        nes.mainBus.write(0xEE, at: 0x02)
         cpu.pc = 0x01
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
-        nes.ram.write(0xA9, at: 0xEE12)
+        nes.mainBus.write(0xA9, at: 0xEE12)
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
@@ -32,13 +32,13 @@ import Testing
     }
     
     @Test func testAdditionalCycles() {
-        nes.ram.write(0x12, at: 0x01)
-        nes.ram.write(0xEE, at: 0x02)
+        nes.mainBus.write(0x12, at: 0x01)
+        nes.mainBus.write(0xEE, at: 0x02)
         cpu.pc = 0x01
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
-        nes.ram.write(0xA9, at: 0xEE12)
+        nes.mainBus.write(0xA9, at: 0xEE12)
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         

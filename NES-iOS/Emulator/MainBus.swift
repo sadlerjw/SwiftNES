@@ -10,7 +10,7 @@ class MainBus : Bus {
     
     private struct Entry {
         var start : Address
-        var device : BusDevice
+        var device : Addressable
         
         var range : ClosedRange<Address> { start ... (start + Address(device.length - 1)) }
     }
@@ -28,17 +28,17 @@ class MainBus : Bus {
     
     func write(_ value: Byte, at address: Address, from source: Void) {
         guard let entry = deviceEntry(at: address) else { return }
-        let offset : BusDevice.Offset = address - entry.start
+        let offset : Addressable.Offset = address - entry.start
         entry.device.write(value, at: offset)
     }
     
     func read(_ address: Address, from source: Void) -> UInt8 {
         guard let entry = deviceEntry(at: address) else { fatalError("No device for address \(address)") }
-        let offset : BusDevice.Offset = address - entry.start
+        let offset : Addressable.Offset = address - entry.start
         return entry.device.read(at: offset)
     }
     
-    func addDevice(_ device: BusDevice, at startAddress: Address) {
+    func addDevice(_ device: Addressable, at startAddress: Address) {
         let newEntry = Entry(start: startAddress, device: device)
         
         for entry in deviceEntries {

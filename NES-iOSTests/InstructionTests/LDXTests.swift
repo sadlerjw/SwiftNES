@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct LDXTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let ldx = Instructions.LDX()
     var cpu: CPU {
         return nes.cpu

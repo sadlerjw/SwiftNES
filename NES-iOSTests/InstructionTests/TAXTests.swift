@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct TAXTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let tax = Instructions.TAX()
     var cpu: CPU {
         return nes.cpu

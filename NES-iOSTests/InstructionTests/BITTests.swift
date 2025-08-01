@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct BITTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let bit = Instructions.BIT()
     var cpu: CPU {
         return nes.cpu

@@ -9,19 +9,19 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct ZeroPageTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let mode = AddressingModes.ZeroPage()
     var cpu: CPU {
         return nes.cpu
     }
 
     @Test func testNoAdditionalCycles() {
-        nes.ram.write(0xEE, at: 0x01)
+        nes.mainBus.write(0xEE, at: 0x01)
         cpu.pc = 0x01
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
-        nes.ram.write(0xA9, at: 0xEE)
+        nes.mainBus.write(0xA9, at: 0xEE)
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
@@ -31,12 +31,12 @@ import Testing
     }
     
     @Test func testAdditionalCycles() {
-        nes.ram.write(0xEE, at: 0x01)
+        nes.mainBus.write(0xEE, at: 0x01)
         cpu.pc = 0x01
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
-        nes.ram.write(0xA9, at: 0xEE)
+        nes.mainBus.write(0xA9, at: 0xEE)
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         

@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct PHPTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let php = Instructions.PHP()
     var cpu: CPU {
         return nes.cpu

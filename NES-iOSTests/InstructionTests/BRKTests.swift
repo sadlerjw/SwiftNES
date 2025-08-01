@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct BRKTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let brk = Instructions.BRK()
     var cpu: CPU {
         return nes.cpu

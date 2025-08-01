@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct BPLTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let bpl = Instructions.BPL()
     var cpu: CPU {
         return nes.cpu

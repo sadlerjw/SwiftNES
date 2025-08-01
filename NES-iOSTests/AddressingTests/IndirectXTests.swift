@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct IndirectXTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let mode = AddressingModes.IndirectX()
     var cpu: CPU {
         return nes.cpu
@@ -17,18 +17,18 @@ import Testing
     
     @Test func testNoAdditionalCycles() {
         // Write the base address of the table of pointers at the PC
-        nes.ram.write(0xE0, at: 0x01)
+        nes.mainBus.write(0xE0, at: 0x01)
         cpu.pc = 0x01
         cpu.x = 0x04
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
         // Write the pointer that we'll access in the table of pointers
-        nes.ram.write(0xCD, at: 0xE4)
-        nes.ram.write(0xAB, at: 0xE5)
+        nes.mainBus.write(0xCD, at: 0xE4)
+        nes.mainBus.write(0xAB, at: 0xE5)
         
         // Write the value that the above pointer points to
-        nes.ram.write(0xA9, at: 0xABCD)
+        nes.mainBus.write(0xA9, at: 0xABCD)
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
@@ -39,18 +39,18 @@ import Testing
     
     @Test func testAdditionalCycles() {
         // Write the base address of the table of pointers at the PC
-        nes.ram.write(0xE0, at: 0x01)
+        nes.mainBus.write(0xE0, at: 0x01)
         cpu.pc = 0x01
         cpu.x = 0x04
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
         // Write the pointer that we'll access in the table of pointers
-        nes.ram.write(0xCD, at: 0xE4)
-        nes.ram.write(0xAB, at: 0xE5)
+        nes.mainBus.write(0xCD, at: 0xE4)
+        nes.mainBus.write(0xAB, at: 0xE5)
         
         // Write the value that the above pointer points to
-        nes.ram.write(0xA9, at: 0xABCD)
+        nes.mainBus.write(0xA9, at: 0xABCD)
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         

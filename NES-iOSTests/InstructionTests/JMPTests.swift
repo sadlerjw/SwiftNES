@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct JMPTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let jmp = Instructions.JMP()
     var cpu: CPU {
         return nes.cpu

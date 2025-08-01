@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct LSRTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let lsr = Instructions.LSR()
     var cpu: CPU {
         return nes.cpu

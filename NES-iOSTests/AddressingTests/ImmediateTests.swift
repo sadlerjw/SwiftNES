@@ -9,14 +9,14 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct ImmediateTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let mode = AddressingModes.Immediate()
     var cpu: CPU {
         return nes.cpu
     }
     
     @Test func testNoAdditionalCycles() {
-        nes.ram.write(0xA9, at: 0x01)
+        nes.mainBus.write(0xA9, at: 0x01)
         cpu.pc = 0x01
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
@@ -29,7 +29,7 @@ import Testing
     }
     
     @Test func testAdditionalCycles() {
-        nes.ram.write(0xA9, at: 0x01)
+        nes.mainBus.write(0xA9, at: 0x01)
         cpu.pc = 0x01
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00

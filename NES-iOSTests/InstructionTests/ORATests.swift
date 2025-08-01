@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct ORATests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let ora = Instructions.ORA()
     var cpu: CPU {
         return nes.cpu

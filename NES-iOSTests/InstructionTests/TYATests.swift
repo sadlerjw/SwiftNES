@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct TYATests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let tya = Instructions.TYA()
     var cpu: CPU {
         return nes.cpu

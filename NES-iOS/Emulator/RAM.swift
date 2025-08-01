@@ -8,7 +8,7 @@
 import Observation
 
 @Observable
-class RAM<let staticLength: Int> : BusDevice {
+class RAM<let staticLength: Int> : Addressable {
     var length: Int { return staticLength }
     var name: String { return "RAM(\(staticLength))"}
     

@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct BEQTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let beq = Instructions.BEQ()
     var cpu: CPU {
         return nes.cpu

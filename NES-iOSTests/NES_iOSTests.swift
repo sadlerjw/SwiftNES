@@ -11,7 +11,7 @@ import Testing
 @MainActor struct CpuRegisterTests {
 
     @Test func CPURegistersAtStartup() {
-        let nes = NES()
+        let nes = NES(allRAM: true)
         nes.mainBus.write(0xDE, at: 0xFFFC)
         nes.mainBus.write(0x12, at: 0xFFFD)
         nes.startup()
@@ -25,7 +25,7 @@ import Testing
     }
     
     @Test func CPURegistersAtReset() {
-        let nes = NES()
+        let nes = NES(allRAM: true)
         nes.startup()
         
         #expect(nes.cpu.pc == 0x0000)

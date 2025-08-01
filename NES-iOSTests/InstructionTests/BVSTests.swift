@@ -9,7 +9,7 @@ import Testing
 @testable import NES_iOS
 
 @MainActor struct BVSTests {
-    let nes = NES()
+    let nes = NES(allRAM: true)
     let bvs = Instructions.BVS()
     var cpu: CPU {
         return nes.cpu
