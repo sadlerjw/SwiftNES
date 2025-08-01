@@ -8,6 +8,8 @@
 protocol ModifyFlagInstruction: Instruction {
     var set : Bool { get }
     var flag : CPU.StatusRegister { get }
+    
+    func postExecute(cpu: CPU)
 }
 
 extension ModifyFlagInstruction {
@@ -19,6 +21,10 @@ extension ModifyFlagInstruction {
             cpu.status.remove(flag)
         }
         
+        postExecute(cpu: cpu)
+        
         return nil
     }
+    
+    func postExecute(cpu: CPU) {}
 }
