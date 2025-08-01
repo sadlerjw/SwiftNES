@@ -6,49 +6,49 @@
 //
 
 extension Instructions {
-    struct ADC : Instruction {
+    struct SBC : Instruction {
         static let sharedInstance = Self.init()
         
         static let opcodeReferences : [OpcodeReference] = [
-            .init(opcode: 0x69,
+            .init(opcode: 0xE9,
                   totalBytes: 2,
                   defaultCycles: 2,
                   instruction: Self.sharedInstance,
                   addressingMode: AddressingModes.Immediate.sharedInstance),
-            .init(opcode: 0x65,
+            .init(opcode: 0xE5,
                   totalBytes: 2,
                   defaultCycles: 3,
                   instruction: Self.sharedInstance,
                   addressingMode: AddressingModes.ZeroPage.sharedInstance),
-            .init(opcode: 0x75,
+            .init(opcode: 0xF5,
                   totalBytes: 2,
                   defaultCycles: 4,
                   instruction: Self.sharedInstance,
                   addressingMode: AddressingModes.ZeroPageX.sharedInstance),
-            .init(opcode: 0x6D,
+            .init(opcode: 0xED,
                   totalBytes: 3,
                   defaultCycles: 4,
                   instruction: Self.sharedInstance,
                   addressingMode: AddressingModes.Absolute.sharedInstance),
-            .init(opcode: 0x7D,
+            .init(opcode: 0xFD,
                   totalBytes: 3,
                   defaultCycles: 4,
                   addsCycleIfPageCrossed: true,
                   instruction: Self.sharedInstance,
                   addressingMode: AddressingModes.AbsoluteX.sharedInstance),
-            .init(opcode: 0x79,
+            .init(opcode: 0xF9,
                   totalBytes: 3,
                   defaultCycles: 4,
                   addsCycleIfPageCrossed: true,
                   instruction: Self.sharedInstance,
                   addressingMode: AddressingModes.AbsoluteY.sharedInstance),
-            .init(opcode: 0x61,
+            .init(opcode: 0xE1,
                   totalBytes: 2,
                   defaultCycles: 6,
                   addsCycleIfPageCrossed: false,
                   instruction: Self.sharedInstance,
                   addressingMode: AddressingModes.IndirectX.sharedInstance),
-            .init(opcode: 0x71,
+            .init(opcode: 0xF1,
                   totalBytes: 2,
                   defaultCycles: 5,
                   addsCycleIfPageCrossed: true,
@@ -58,23 +58,10 @@ extension Instructions {
         
         @discardableResult
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-            addToAccumulatorWithCarry(cpu: cpu, operand: cpu.fetchedData)
+            let inverted = ~cpu.fetchedData
+            ADC.sharedInstance.addToAccumulatorWithCarry(cpu: cpu, operand: inverted)
             
             return nil
-        }
-        
-        func addToAccumulatorWithCarry(cpu: CPU, operand: Byte) {
-            let result = UInt16(cpu.a) + UInt16(operand) + UInt16(cpu.status.contains(.c) ? 1 : 0)
-            
-            cpu.status.setC(result > 0xFF)
-            
-            let truncatedResult = UInt8(result & 0xFF)
-            
-            cpu.status.setZ(truncatedResult == 0)
-            cpu.status.setO(((truncatedResult ^ cpu.a) & (truncatedResult ^ operand) & 0x80) != 0)
-            cpu.status.setN(truncatedResult >> 7 == 1)
-            
-            cpu.a = truncatedResult
         }
     }
 }
