@@ -1,9 +1,10 @@
 //
-//  NES.swift
+//  NES 2.swift
 //  SwiftNES
 //
-//  Created by Jason Sadler on 2025-07-29.
+//  Created by Jason Sadler on 2025-08-02.
 //
+
 
 import Observation
 
@@ -13,7 +14,10 @@ typealias Byte = UInt8
 @Observable
 class NES {
     let mainBus = CPU.MainBus()
+    let ppuBus = PPU.PPUBus()
+    
     let cpu : CPU
+    let ppu : PPU
     
     /// Sets up a full NES emulator stack. `startup()` should be called before use.
     /// - Parameter allRam: Set up a huge bank of RAM on the main bus instead of mapping devices.
@@ -22,7 +26,11 @@ class NES {
         if allRAM {
             let ram = RAM<0x10000>()
             mainBus.addDevice(ram, at: 0x0000)
+            
+            let ppuRAM = RAM<0x4000>()
+            ppuBus.addDevice(ppuRAM, at: 0x0000)
         } else {
+            // MARK: CPU Bus
             let ram = RAM<0x800>()
             let ramMirror = Mirror(mirroring: ram, times: 3)
             mainBus.addDevice(ramMirror, at: 0x0000)
@@ -75,11 +83,20 @@ class NES {
             
             // $4018–$401F are for CPU test mode, so unused for us.
             
-            let cartridge = RAM<0xBFE0>()       // TODO: real cartridges and mappers
-            mainBus.addDevice(cartridge, at: 0x4020)
-
+            let cartridgeCPUMap = RAM<0xBFE0>()       // TODO: real cartridges and mappers
+            mainBus.addDevice(cartridgeCPUMap, at: 0x4020)
+            
+            // MARK: PPU Bus
+            let cartridgePPUMap = RAM<0x3F00>()       // TODO: real cartridges and mappers
+            ppuBus.addDevice(cartridgeCPUMap, at: 0x0000)
+            
+            let paletteRam = RAM<0x0020>()
+            let paletteMirror = Mirror(mirroring: paletteRam, times: 7)
+            ppuBus.addDevice(paletteMirror, at: 0x3F00)
         }
+        
         cpu = CPU(bus: mainBus)
+        ppu = PPU(bus: ppuBus)
     }
     
     func addDebugProgramToRam() {

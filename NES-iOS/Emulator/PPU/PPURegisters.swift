@@ -51,6 +51,7 @@ extension PPU {
         unowned let ppu: PPU
         
         private var latchedValue : Byte = 0
+        private var ppuDataBuffer : Byte = 0
         
         init(ppu: PPU) {
             self.ppu = ppu
@@ -72,6 +73,30 @@ extension PPU {
             case 4: // OAMDATA
                 ppu.oam.raw[Int(ppu.oamAddress)] = value
                 ppu.oamAddress &+= 1
+            case 5: // PPUSCROLL
+                if !ppu.w {
+                    ppu.t.coarseXScroll = value & 0xF8  // The high 5 bits go in t
+                    ppu.x = value & 0x7                 // The low 3 bits go in x
+                } else {
+                    ppu.t.coarseYScroll = value & 0xF8  // The high 5 bits go in t
+                    ppu.t.fineYScroll = value & 0x7     // The low 3 bits go elsewhere in t
+                }
+                ppu.w.toggle()
+            case 6: // PPUADDR
+                let reg = ppu.t.rawValue.reg
+                if !ppu.w {
+                    // Replace the high byte of t with value (but zero out the highest two bits)
+                    ppu.t.rawValue.reg = (reg & 0x00FF) | (UInt16(value << 8) & 0x3F00)
+                } else {
+                    // Replace the low byte of t with value
+                    ppu.t.rawValue.reg = (reg & 0xFF00) | UInt16(value)
+                    // Copy t into v
+                    ppu.v.rawValue.reg = ppu.t.rawValue.reg
+                }
+                ppu.w.toggle()
+            case 7: // PPUDATA
+                ppu.bus.write(value, at: ppu.t.rawValue.reg)
+                let ppuAddr = (ppu.t.rawValue.reg &+ 1) & 0x3FFF    // Truncate the result at 14 bits
             default:
                 fatalError("Received impossible offset \(offset) in PPU.Registers")
                 break
@@ -94,6 +119,16 @@ extension PPU {
                 break
             case 4: // OAMDATA
                 latchedValue = ppu.oam.raw[Int(ppu.oamAddress)]
+            case 5: // PPUSCROLL is write-only
+                break
+            case 6: // PPUADDR is read-only
+                break
+            case 7: // PPUDATA
+                // PPUDATA reads are delayed by one access to PPUDATA, so
+                // we use a buffer to do that.
+                latchedValue = ppuDataBuffer
+                ppuDataBuffer = ppu.bus.read(ppu.t.rawValue.reg)
+                let ppuAddr = (ppu.t.rawValue.reg &+ 1) & 0x3FFF    // Truncate the result at 14 bits
             default:
                 fatalError("Received impossible offset \(offset) in PPU.Registers")
             }
@@ -145,7 +180,7 @@ struct PPUAddressRegister {
         set { rawValue.nametable_y = newValue ? 1 : 0 }
     }
     
-    var fineY : UInt8 {     // actually only 3 bits
+    var fineYScroll : UInt8 {     // actually only 3 bits
         get { return UInt8(rawValue.fine_y) }
         set { assert(newValue < 0x8) // Ensure it fits in 3 bits
             rawValue.fine_y = UInt16(newValue & 0x7)

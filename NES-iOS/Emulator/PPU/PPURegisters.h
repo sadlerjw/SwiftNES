@@ -10,6 +10,8 @@
 
 #import <stdint.h>
 
+// These bits all adapted from https://github.com/OneLoneCoder/olcNES/blob/master/Part%20%235%20-%20PPU%20Foregrounds/olc2C02.h
+
 typedef union
 {
     // https://www.nesdev.org/wiki/PPU_scrolling#PPU_internal_registers

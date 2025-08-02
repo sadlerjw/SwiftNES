@@ -8,6 +8,10 @@
 import Foundation
 
 class PPU {
+    typealias PPUBus = Bus<Void>
+    
+    unowned let bus : PPUBus
+    
     // Registers exposed on the main bus:
     var control = Registers.PPUCTRL() {
         didSet {
@@ -33,4 +37,8 @@ class PPU {
     var t = PPUAddressRegister()    // Temporary VRAM address, used as address of the top left onscreen tile (15 bits)
     var x: Byte = 0     // Fine x scroll (3 bits)
     var w: Bool = false // First or second write toggle
+    
+    init(bus: PPUBus) {
+        self.bus = bus
+    }
 }
