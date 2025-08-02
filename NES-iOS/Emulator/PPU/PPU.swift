@@ -29,6 +29,9 @@ class PPU {
     
     var oamAddress : Byte = 0    // TODO: set to 0 during each of ticks 257-320 of pre-render and visible scanlines
     
+    private var actualRegisters : Registers!
+    var addressableRegisters : Registers { actualRegisters }
+    
     // Internals:
     var oam = OAMTable()
     
@@ -40,5 +43,6 @@ class PPU {
     
     init(bus: PPUBus) {
         self.bus = bus
+        self.actualRegisters = Registers(ppu: self)
     }
 }

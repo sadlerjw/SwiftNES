@@ -35,9 +35,8 @@ class NES {
             let ramMirror = Mirror(mirroring: ram, times: 3)
             mainBus.addDevice(ramMirror, at: 0x0000)
             
-            let ppuRegisters = RAM<0x08>()  // TODO: use a real PPU instead of mocking RAM
-            let ppuMirror = Mirror(mirroring: ppuRegisters, times: 1023)
-            mainBus.addDevice(ppuMirror, at: 0x2000)
+            // PPU registers normally get mapped here, but first we have to
+            // create the PPU! So it happens later.
             
             let apuRegisters = RAM<0x14>()  // TODO: use a real APU
             mainBus.addDevice(apuRegisters, at: 0x4000)
@@ -88,7 +87,7 @@ class NES {
             
             // MARK: PPU Bus
             let cartridgePPUMap = RAM<0x3F00>()       // TODO: real cartridges and mappers
-            ppuBus.addDevice(cartridgeCPUMap, at: 0x0000)
+            ppuBus.addDevice(cartridgePPUMap, at: 0x0000)
             
             let paletteRam = RAM<0x0020>()
             let paletteMirror = Mirror(mirroring: paletteRam, times: 7)
@@ -97,6 +96,12 @@ class NES {
         
         cpu = CPU(bus: mainBus)
         ppu = PPU(bus: ppuBus)
+        
+        if !allRAM {
+            let ppuRegisters = ppu.addressableRegisters
+            let ppuMirror = Mirror(mirroring: ppuRegisters, times: 1023)
+            mainBus.addDevice(ppuMirror, at: 0x2000)
+        }
     }
     
     func addDebugProgramToRam() {
