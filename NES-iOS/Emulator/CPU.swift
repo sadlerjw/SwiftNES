@@ -10,6 +10,8 @@ import Observation
 
 @Observable
 class CPU {
+    typealias MainBus = Bus<Void>
+    
     struct StatusRegister : OptionSet {
         private static let alwaysOneRawValue : UInt8 = 1 << 5
         

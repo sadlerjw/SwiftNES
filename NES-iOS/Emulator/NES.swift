@@ -12,7 +12,7 @@ typealias Byte = UInt8
 
 @Observable
 class NES {
-    let mainBus = MainBus()
+    let mainBus = CPU.MainBus()
     let cpu : CPU
     
     /// Sets up a full NES emulator stack. `startup()` should be called before use.
