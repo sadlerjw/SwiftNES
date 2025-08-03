@@ -71,7 +71,7 @@ extension PPU {
                 ppu.oamAddress = value
                 break
             case 4: // OAMDATA
-                ppu.oam.raw[Int(ppu.oamAddress)] = value
+                ppu.oam.raw.write(value, at: Address(ppu.oamAddress))
                 ppu.oamAddress &+= 1
             case 5: // PPUSCROLL
                 if !ppu.w {
@@ -118,7 +118,7 @@ extension PPU {
             case 3: // OAMADDR is write-only
                 break
             case 4: // OAMDATA
-                latchedValue = ppu.oam.raw[Int(ppu.oamAddress)]
+                latchedValue = ppu.oam.raw.read(at: Address(ppu.oamAddress))
             case 5: // PPUSCROLL is write-only
                 break
             case 6: // PPUADDR is read-only

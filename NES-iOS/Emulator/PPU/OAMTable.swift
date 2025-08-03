@@ -7,19 +7,19 @@
 
 
 struct OAMTable {
-    var raw = InlineArray<256, Byte>(repeating: 0)
+    var raw = RAM<256>()
     
-    subscript(index: Int) -> OAMEntry {
+    subscript(index: Address) -> OAMEntry {
         get {
             precondition(index >= 0)
             precondition(index < 64)
             let baseIndex = index * 4
             
-            let internalAttributes = internal_oam_attributes(reg: raw[baseIndex + 2])
-            let internalEntry = internal_oam_entry(y: raw[baseIndex],
-                                              tile_index: raw[baseIndex + 1],
+            let internalAttributes = internal_oam_attributes(reg: raw.read(at: baseIndex + 2))
+            let internalEntry = internal_oam_entry(y: raw.read(at: baseIndex),
+                                                   tile_index: raw.read(at: baseIndex + 1),
                                               attributes: internalAttributes,
-                                              x: raw[baseIndex + 3])
+                                                   x: raw.read(at: baseIndex + 3))
             
             return .init(rawValue: internalEntry)
         }
@@ -28,10 +28,10 @@ struct OAMTable {
             precondition(index < 64)
             let baseIndex = index * 4
             
-            raw[baseIndex] = newValue.y
-            raw[baseIndex + 1] = newValue.tileIndex
-            raw[baseIndex + 2] = newValue.attributes.rawValue.reg
-            raw[baseIndex + 3] = newValue.x
+            raw.write(newValue.y, at: baseIndex)
+            raw.write(newValue.tileIndex, at: baseIndex + 1)
+            raw.write(newValue.attributes.rawValue.reg, at: baseIndex + 2)
+            raw.write(newValue.x, at: baseIndex + 3)
         }
     }
 }
