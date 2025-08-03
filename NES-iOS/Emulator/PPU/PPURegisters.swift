@@ -96,7 +96,8 @@ extension PPU {
                 ppu.w.toggle()
             case 7: // PPUDATA
                 ppu.bus.write(value, at: ppu.t.rawValue.reg)
-                let ppuAddr = (ppu.t.rawValue.reg &+ 1) & 0x3FFF    // Truncate the result at 14 bits
+                let incrementedAddress = (ppu.t.rawValue.reg &+ (ppu.control.contains(.vramAddressIncrementMode) ? 32 : 1))
+                ppu.t.rawValue.reg = incrementedAddress & 0x3FFF    // Truncate the result at 14 bits
             default:
                 fatalError("Received impossible offset \(offset) in PPU.Registers")
                 break
@@ -124,11 +125,20 @@ extension PPU {
             case 6: // PPUADDR is read-only
                 break
             case 7: // PPUDATA
+                let address = ppu.t.rawValue.reg
+                
                 // PPUDATA reads are delayed by one access to PPUDATA, so
                 // we use a buffer to do that.
                 latchedValue = ppuDataBuffer
-                ppuDataBuffer = ppu.bus.read(ppu.t.rawValue.reg)
-                let ppuAddr = (ppu.t.rawValue.reg &+ 1) & 0x3FFF    // Truncate the result at 14 bits
+                ppuDataBuffer = ppu.bus.read(address)
+                let incrementedAddress = (address &+ (ppu.control.contains(.vramAddressIncrementMode) ? 32 : 1))
+                ppu.t.rawValue.reg = incrementedAddress & 0x3FFF    // Truncate the result at 14 bits
+                
+                if address >= 0x3F00 && address <= 0x3FFF {
+                    // We're reading from palette memory and we return the fetched data immediately
+                    // instead of delaying it by a cycle (but we do also populate the buffer as usual)
+                    latchedValue = ppuDataBuffer
+                }
             default:
                 fatalError("Received impossible offset \(offset) in PPU.Registers")
             }
