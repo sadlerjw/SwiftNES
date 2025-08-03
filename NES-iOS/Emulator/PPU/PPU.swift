@@ -8,9 +8,7 @@
 import Foundation
 
 class PPU {
-    typealias PPUBus = Bus<Void>
-    
-    unowned let bus : PPUBus
+    unowned let bus : Bus
     
     // Registers exposed on the main bus:
     var control = Registers.PPUCTRL() {
@@ -41,7 +39,7 @@ class PPU {
     var x: Byte = 0     // Fine x scroll (3 bits)
     var w: Bool = false // First or second write toggle
     
-    init(bus: PPUBus) {
+    init(bus: Bus) {
         self.bus = bus
         self.actualRegisters = Registers(ppu: self)
     }

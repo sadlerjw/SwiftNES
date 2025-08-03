@@ -6,7 +6,7 @@
 //
 
 
-class Bus<Source> {
+class Bus {
     private struct Entry {
         var start : Address
         var device : Addressable
@@ -25,13 +25,13 @@ class Bus<Source> {
         return nil
     }
     
-    func write(_ value: Byte, at address: Address, from source: Void) {
+    func write(_ value: Byte, at address: Address) {
         guard let entry = deviceEntry(at: address) else { return }
         let offset : Addressable.Offset = address - entry.start
         entry.device.write(value, at: offset)
     }
     
-    func read(_ address: Address, from source: Void) -> UInt8 {
+    func read(_ address: Address) -> UInt8 {
         guard let entry = deviceEntry(at: address) else { fatalError("No device for address \(address)") }
         let offset : Addressable.Offset = address - entry.start
         return entry.device.read(at: offset)
@@ -47,15 +47,3 @@ class Bus<Source> {
         deviceEntries.append(newEntry)
     }
 }
-
-extension Bus where Source == Void {
-    func write(_ value: Byte, at address: Address) {
-        self.write(value, at: address, from: ())
-    }
-    
-    func read(_ address: Address) -> UInt8 {
-        self.read(address, from: ())
-    }
-}
-
-

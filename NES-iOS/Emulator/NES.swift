@@ -13,8 +13,8 @@ typealias Byte = UInt8
 
 @Observable
 class NES {
-    let mainBus = CPU.MainBus()
-    let ppuBus = PPU.PPUBus()
+    let mainBus = Bus()
+    let ppuBus = Bus()
     
     let cpu : CPU
     let ppu : PPU
@@ -74,15 +74,6 @@ class NES {
             }()        // TODO: have PPU(CPU?) expose this as an `Addressable`
             mainBus.addDevice(oamDMA, at: 0x4014)
             
-            let soundChannelsEnable: Addressable = {
-                if #available(iOS 26.0, *) {
-                    return RAM_26<0x01>()
-                } else {
-                    return RAM_legacy(length: 0x01)
-                  }
-            }()  // TODO: should be part of APU, I think
-            mainBus.addDevice(soundChannelsEnable, at: 0x4015)
-            
             // This is pretty confusing...maybe ALL of it should be moved to the APU and have
             // it vend another addressable for it
             let joystickAndIRQAndAPUFrameCounter = ClosureAddressable(length: 3,
@@ -115,6 +106,8 @@ class NES {
                     fatalError("Received impossible offset \(offset) in Joystick/IRQ/FrameCounter addressable")
                 }
             }
+            
+            mainBus.addDevice(joystickAndIRQAndAPUFrameCounter, at: 0x4015)
             
             // $4018–$401F are for CPU test mode, so unused for us.
             

@@ -10,8 +10,6 @@ import Observation
 
 @Observable
 class CPU {
-    typealias MainBus = Bus<Void>
-    
     struct StatusRegister : OptionSet {
         private static let alwaysOneRawValue : UInt8 = 1 << 5
         
@@ -101,7 +99,7 @@ class CPU {
     }
     
     struct Stack {
-        unowned let bus : MainBus
+        unowned let bus : Bus
         let baseAddress: Address = 0x0100
         var stackPointer: Byte = 0
         
@@ -142,9 +140,9 @@ class CPU {
     var interruptsEnabled: Bool = false
     var changingInterruptsEnabledShouldBeDelayed = false
     
-    unowned let bus : MainBus
+    unowned let bus : Bus
     
-    init(bus: MainBus) {
+    init(bus: Bus) {
         self.bus = bus
         self.stack = Stack(bus: bus)
     }
