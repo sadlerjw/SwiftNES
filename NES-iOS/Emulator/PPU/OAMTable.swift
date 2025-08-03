@@ -7,7 +7,15 @@
 
 
 struct OAMTable {
-    var raw = RAM<256>()
+    var raw : Addressable
+    
+    init() {
+        if #available(iOS 26.0, *) {
+            raw = RAM_26<256>()
+        } else {
+            raw = RAM_legacy(length: 256)
+        }
+    }
     
     subscript(index: Address) -> OAMEntry {
         get {

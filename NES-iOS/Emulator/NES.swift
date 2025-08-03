@@ -1,5 +1,5 @@
 //
-//  NES 2.swift
+//  NES.swift
 //  SwiftNES
 //
 //  Created by Jason Sadler on 2025-08-02.
@@ -24,27 +24,63 @@ class NES {
     ///                         Should be used only for unit tests or debugging.
     init(allRAM: Bool = false) {
         if allRAM {
-            let ram = RAM<0x10000>()
+            let ram: Addressable = {
+                if #available(iOS 26.0, *) {
+                    return RAM_26<0x10000>()
+                } else {
+                    return RAM_legacy(length: 0x10000)
+                }
+            }()
             mainBus.addDevice(ram, at: 0x0000)
             
-            let ppuRAM = RAM<0x4000>()
+            let ppuRAM: Addressable = {
+                if #available(iOS 26.0, *) {
+                    return RAM_26<0x4000>()
+                } else {
+                    return RAM_legacy(length: 0x4000)
+                  }
+            }()
             ppuBus.addDevice(ppuRAM, at: 0x0000)
         } else {
             // MARK: CPU Bus
-            let ram = RAM<0x800>()
+            let ram: Addressable = {
+                if #available(iOS 26.0, *) {
+                    return RAM_26<0x800>()
+                } else {
+                    return RAM_legacy(length: 0x800)
+                  }
+            }()
             let ramMirror = Mirror(mirroring: ram, times: 3)
             mainBus.addDevice(ramMirror, at: 0x0000)
             
             // PPU registers normally get mapped here, but first we have to
             // create the PPU! So it happens later.
             
-            let apuRegisters = RAM<0x14>()  // TODO: use a real APU
+            let apuRegisters: Addressable = {
+                if #available(iOS 26.0, *) {
+                    return RAM_26<0x14>()
+                } else {
+                    return RAM_legacy(length: 0x14)
+                  }
+            }()  // TODO: use a real APU
             mainBus.addDevice(apuRegisters, at: 0x4000)
             
-            let oamDMA = RAM<0x01>()        // TODO: have PPU(CPU?) expose this as an `Addressable`
+            let oamDMA: Addressable = {
+                if #available(iOS 26.0, *) {
+                    return RAM_26<0x01>()
+                } else {
+                    return RAM_legacy(length: 0x01)
+                  }
+            }()        // TODO: have PPU(CPU?) expose this as an `Addressable`
             mainBus.addDevice(oamDMA, at: 0x4014)
             
-            let soundChannelsEnable = RAM<0x01>()  // TODO: should be part of APU, I think
+            let soundChannelsEnable: Addressable = {
+                if #available(iOS 26.0, *) {
+                    return RAM_26<0x01>()
+                } else {
+                    return RAM_legacy(length: 0x01)
+                  }
+            }()  // TODO: should be part of APU, I think
             mainBus.addDevice(soundChannelsEnable, at: 0x4015)
             
             // This is pretty confusing...maybe ALL of it should be moved to the APU and have
@@ -82,14 +118,32 @@ class NES {
             
             // $4018–$401F are for CPU test mode, so unused for us.
             
-            let cartridgeCPUMap = RAM<0xBFE0>()       // TODO: real cartridges and mappers
+            let cartridgeCPUMap: Addressable = {
+                if #available(iOS 26.0, *) {
+                    return RAM_26<0xBFE0>()
+                } else {
+                    return RAM_legacy(length: 0xBFE0)
+                  }
+            }()       // TODO: real cartridges and mappers
             mainBus.addDevice(cartridgeCPUMap, at: 0x4020)
             
             // MARK: PPU Bus
-            let cartridgePPUMap = RAM<0x3F00>()       // TODO: real cartridges and mappers
+            let cartridgePPUMap: Addressable = {
+                if #available(iOS 26.0, *) {
+                    return RAM_26<0x3F00>()
+                } else {
+                    return RAM_legacy(length: 0x3F00)
+                  }
+            }()       // TODO: real cartridges and mappers
             ppuBus.addDevice(cartridgePPUMap, at: 0x0000)
             
-            let paletteRam = RAM<0x0020>()
+            let paletteRam: Addressable = {
+                if #available(iOS 26.0, *) {
+                    return RAM_26<0x0020>()
+                } else {
+                    return RAM_legacy(length: 0x0020)
+                  }
+            }()
             let paletteMirror = Mirror(mirroring: paletteRam, times: 7)
             ppuBus.addDevice(paletteMirror, at: 0x3F00)
         }
