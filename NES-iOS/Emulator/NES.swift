@@ -18,6 +18,7 @@ class NES {
     
     let cpu : CPU
     let ppu : PPU
+    let oamDMA : OAMDMA
     
     /// Sets up a full NES emulator stack. `startup()` should be called before use.
     /// - Parameter allRam: Set up a huge bank of RAM on the main bus instead of mapping devices.
@@ -65,14 +66,7 @@ class NES {
             }()  // TODO: use a real APU
             mainBus.addDevice(apuRegisters, at: 0x4000)
             
-            let oamDMA: Addressable = {
-                if #available(iOS 26.0, *) {
-                    return RAM_26<0x01>()
-                } else {
-                    return RAM_legacy(length: 0x01)
-                  }
-            }()        // TODO: have PPU(CPU?) expose this as an `Addressable`
-            mainBus.addDevice(oamDMA, at: 0x4014)
+            // OAM DMA at 0x4014 comes here but it needs a reference to the CPU so we add it to the bus later below.
             
             // This is pretty confusing...maybe ALL of it should be moved to the APU and have
             // it vend another addressable for it
@@ -143,11 +137,14 @@ class NES {
         
         cpu = CPU(bus: mainBus)
         ppu = PPU(bus: ppuBus)
+        oamDMA = OAMDMA(cpu: cpu)
         
         if !allRAM {
             let ppuRegisters = ppu.addressableRegisters
             let ppuMirror = Mirror(mirroring: ppuRegisters, times: 1023)
             mainBus.addDevice(ppuMirror, at: 0x2000)
+            
+            mainBus.addDevice(oamDMA, at: 0x4014)
         }
     }
     
@@ -192,6 +189,7 @@ class NES {
     
     func tick() {
         cpu.tick()
+        oamDMA.tick()
     }
     
     func stepCPU() {

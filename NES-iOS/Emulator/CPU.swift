@@ -140,6 +140,8 @@ class CPU {
     var interruptsEnabled: Bool = false
     var changingInterruptsEnabledShouldBeDelayed = false
     
+    private(set) var isHalted = false
+    
     unowned let bus : Bus
     
     init(bus: Bus) {
@@ -163,7 +165,17 @@ class CPU {
         cyclesBeforeNextInstruction = 0
     }
     
+    func requestHalt() {
+        isHalted = true
+    }
+    
+    func unHalt() {
+        isHalted = false
+    }
+    
     func tick() {
+        guard !isHalted else { return }
+        
         defer {
             cyclesBeforeNextInstruction -= 1
         }
