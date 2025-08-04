@@ -105,7 +105,7 @@ class CPU {
         
         mutating func push(_ value: Byte) {
             bus.write(value, at: baseAddress + Address(stackPointer))
-            stackPointer -= 1
+            stackPointer &-= 1
         }
         
         mutating func push(_ value: Address) {
@@ -114,7 +114,7 @@ class CPU {
         }
         
         mutating func popByte() -> Byte {
-            stackPointer += 1
+            stackPointer &+= 1
             return bus.read(baseAddress + Address(stackPointer))
         }
         
@@ -129,7 +129,7 @@ class CPU {
     var x: UInt8 = 0
     var y: UInt8 = 0
     
-    var pc: UInt16 = 0xFFFC
+    var pc: UInt16 = 0
     var stack : Stack
     var status: StatusRegister = .i
     
@@ -154,8 +154,8 @@ class CPU {
     }
     
     func reset() {
-        let low = bus.read(0xFFFC)
-        let high = bus.read(0xFFFD)
+        let low = bus.read(NES.MainBusAddresses.resetVector)
+        let high = bus.read(NES.MainBusAddresses.resetVector + 1)
         pc = UInt16(low) | (UInt16(high) << 8)
         stack.stackPointer &-= 3    // Means on startup it starts at 0x00 - 3 = 0xFD
         status.insert(.i)

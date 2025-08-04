@@ -39,8 +39,14 @@ class PPU {
     var x: Byte = 0     // Fine x scroll (3 bits)
     var w: Bool = false // First or second write toggle
     
+    private(set) var isEvenFrame = true
+    
     init(bus: Bus) {
         self.bus = bus
         self.actualRegisters = Registers(ppu: self)
+    }
+    
+    func tick() {
+        
     }
 }

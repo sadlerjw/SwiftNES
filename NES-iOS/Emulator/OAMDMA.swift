@@ -31,7 +31,7 @@ class OAMDMA : Addressable {
     
     unowned let cpu: CPU
     private(set) var pageSourceAddress: Address = 0
-    private(set) var bytesCopied: UInt8 = 0
+    private(set) var bytesCopied: Int = 0
     private(set) var cycleType = CycleType.read
     private(set) var currentValue: Byte = 0
     private(set) var activeState : ActiveState = .inactive
@@ -65,10 +65,10 @@ class OAMDMA : Addressable {
         case .read:
             currentValue = cpu.bus.read(pageSourceAddress + Address(bytesCopied))
         case .write:
-            cpu.bus.write(currentValue, at: 0x2007)
+            cpu.bus.write(currentValue, at: NES.MainBusAddresses.OAMDATA)
             bytesCopied += 1
             
-            if bytesCopied == 255 {
+            if bytesCopied == 256 {
                 bytesCopied = 0
                 activeState = .inactive
                 cpu.unHalt()
@@ -85,7 +85,7 @@ class OAMDMA : Addressable {
             fatalError("Shouldn't be possible to start OAM DMA while it one is still in progress")
         }
         
-        pageSourceAddress = Address(value << 8)
+        pageSourceAddress = Address(value) << 8
         activeState = .pendingCPUHaltAndReadCycle   // Start trying to halt the CPU on the next cycle
     }
     

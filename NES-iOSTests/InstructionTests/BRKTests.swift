@@ -22,8 +22,8 @@ import Testing
         cpu.pc += 1
         
         // Set the address of the interrupt handler
-        cpu.bus.write(0x34, at: 0xFFFE)
-        cpu.bus.write(0x12, at: 0xFFFF)
+        cpu.bus.write(0x34, at: NES.MainBusAddresses.brkVector)
+        cpu.bus.write(0x12, at: NES.MainBusAddresses.brkVector + 1)
         
         brk.execute(cpu: cpu)
         

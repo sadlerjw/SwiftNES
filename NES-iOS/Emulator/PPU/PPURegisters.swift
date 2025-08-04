@@ -86,7 +86,7 @@ extension PPU {
                 let reg = ppu.t.rawValue.reg
                 if !ppu.w {
                     // Replace the high byte of t with value (but zero out the highest two bits)
-                    ppu.t.rawValue.reg = (reg & 0x00FF) | (UInt16(value << 8) & 0x3F00)
+                    ppu.t.rawValue.reg = (reg & 0x00FF) | (UInt16(value) << 8 & 0x3F00)
                 } else {
                     // Replace the low byte of t with value
                     ppu.t.rawValue.reg = (reg & 0xFF00) | UInt16(value)
@@ -134,7 +134,7 @@ extension PPU {
                 let incrementedAddress = (address &+ (ppu.control.contains(.vramAddressIncrementMode) ? 32 : 1))
                 ppu.t.rawValue.reg = incrementedAddress & 0x3FFF    // Truncate the result at 14 bits
                 
-                if address >= 0x3F00 && address <= 0x3FFF {
+                if address >= NES.PPUBusAddresses.paletteRAMIndexesStart && address <= NES.PPUBusAddresses.lastAddress {
                     // We're reading from palette memory and we return the fetched data immediately
                     // instead of delaying it by a cycle (but we do also populate the buffer as usual)
                     latchedValue = ppuDataBuffer

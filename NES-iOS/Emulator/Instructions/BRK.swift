@@ -27,8 +27,8 @@ extension Instructions {
             cpu.status.remove(.b)
             cpu.status.insert(.i)
             
-            let pcLow = cpu.bus.read(0xFFFE)
-            let pcHigh = cpu.bus.read(0xFFFF)
+            let pcLow = cpu.bus.read(NES.MainBusAddresses.brkVector)
+            let pcHigh = cpu.bus.read(NES.MainBusAddresses.brkVector + 1)
             cpu.pc = Address(low: pcLow, high: pcHigh)
 
             return nil

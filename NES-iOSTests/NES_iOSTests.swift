@@ -12,8 +12,8 @@ import Testing
 
     @Test func CPURegistersAtStartup() {
         let nes = NES(allRAM: true)
-        nes.mainBus.write(0xDE, at: 0xFFFC)
-        nes.mainBus.write(0x12, at: 0xFFFD)
+        nes.mainBus.write(0xDE, at: NES.MainBusAddresses.resetVector)
+        nes.mainBus.write(0x12, at: NES.MainBusAddresses.resetVector + 1)
         nes.startup()
         
         #expect(nes.cpu.a == 0)

@@ -6,6 +6,7 @@
 //
 
 
+import Dispatch
 import Observation
 
 typealias Address = UInt16
@@ -13,12 +14,65 @@ typealias Byte = UInt8
 
 @Observable
 class NES {
+    enum MainBusAddresses {
+        static let ramStart : Address = 0x0000
+        
+        static let PPUCTRL : Address = 0x2000
+        static let PPUMASK : Address = 0x2001
+        static let PPUSTATUS : Address = 0x2002
+        static let OAMADDR : Address = 0x2003
+        static let OAMDATA : Address = 0x2004
+        static let PPUSCROLL : Address = 0x2005
+        static let PPUADDR : Address = 0x2006
+        static let PPUDATA : Address = 0x2007
+        
+        static let apuPulse1Start : Address = 0x4000
+        static let apuPulse2Start : Address = 0x4004
+        static let apuTriangleStart : Address = 0x4008
+        static let apuNoiseStart : Address = 0x400C
+        static let apuDMCStart : Address = 0x4010
+        
+        static let OAMDMA : Address = 0x4014
+        
+        static let apuSoundStatus : Address = 0x4015
+        static let controller1 : Address = 0x4016
+        static let controller2 : Address = 0x4017       // In read only
+        static let apuFrameCounter : Address = 0x4017 // In write only
+        
+        static let cartridgeStart : Address = 0x4020
+        
+        static let nmiVector : Address = 0xFFFA
+        static let resetVector : Address = 0xFFFC
+        static let brkVector : Address = 0xFFFE
+        
+        static let lastAddress : UInt16 = 0xFFFF
+    }
+    
+    enum PPUBusAddresses {
+        static let cartridgeStart : Address = 0x0000
+        static let patternTable0Start : Address = 0x0000
+        static let patternTable1Start : Address = 0x1000
+        static let nametable0Start : Address = 0x2000
+        static let attributeTable0Start : Address = 0x23C0
+        static let nametable1Start : Address = 0x2400
+        static let attributeTable1Start : Address = 0x26C0
+        static let nametable2Start : Address = 0x2800
+        static let attributeTable2Start : Address = 0x2BC0
+        static let nametable3Start : Address = 0x2C00
+        static let attributetable3Start : Address = 0x2FC0
+        static let paletteRAMIndexesStart : Address = 0x3F00
+        
+        static let lastAddress : UInt16 = 0x3FFF
+    }
+    
     let mainBus = Bus()
     let ppuBus = Bus()
     
     let cpu : CPU
     let ppu : PPU
     let oamDMA : OAMDMA
+
+    private(set) var clockCount : UInt = 0
     
     /// Sets up a full NES emulator stack. `startup()` should be called before use.
     /// - Parameter allRam: Set up a huge bank of RAM on the main bus instead of mapping devices.
@@ -52,7 +106,7 @@ class NES {
                   }
             }()
             let ramMirror = Mirror(mirroring: ram, times: 3)
-            mainBus.addDevice(ramMirror, at: 0x0000)
+            mainBus.addDevice(ramMirror, at: MainBusAddresses.ramStart)
             
             // PPU registers normally get mapped here, but first we have to
             // create the PPU! So it happens later.
@@ -64,7 +118,7 @@ class NES {
                     return RAM_legacy(length: 0x14)
                   }
             }()  // TODO: use a real APU
-            mainBus.addDevice(apuRegisters, at: 0x4000)
+            mainBus.addDevice(apuRegisters, at: MainBusAddresses.apuPulse1Start)
             
             // OAM DMA at 0x4014 comes here but it needs a reference to the CPU so we add it to the bus later below.
             
@@ -101,7 +155,7 @@ class NES {
                 }
             }
             
-            mainBus.addDevice(joystickAndIRQAndAPUFrameCounter, at: 0x4015)
+            mainBus.addDevice(joystickAndIRQAndAPUFrameCounter, at: MainBusAddresses.apuSoundStatus)
             
             // $4018–$401F are for CPU test mode, so unused for us.
             
@@ -112,7 +166,7 @@ class NES {
                     return RAM_legacy(length: 0xBFE0)
                   }
             }()       // TODO: real cartridges and mappers
-            mainBus.addDevice(cartridgeCPUMap, at: 0x4020)
+            mainBus.addDevice(cartridgeCPUMap, at: MainBusAddresses.cartridgeStart)
             
             // MARK: PPU Bus
             let cartridgePPUMap: Addressable = {
@@ -122,7 +176,7 @@ class NES {
                     return RAM_legacy(length: 0x3F00)
                   }
             }()       // TODO: real cartridges and mappers
-            ppuBus.addDevice(cartridgePPUMap, at: 0x0000)
+            ppuBus.addDevice(cartridgePPUMap, at: PPUBusAddresses.cartridgeStart)
             
             let paletteRam: Addressable = {
                 if #available(iOS 26.0, *) {
@@ -132,7 +186,7 @@ class NES {
                   }
             }()
             let paletteMirror = Mirror(mirroring: paletteRam, times: 7)
-            ppuBus.addDevice(paletteMirror, at: 0x3F00)
+            ppuBus.addDevice(paletteMirror, at: PPUBusAddresses.paletteRAMIndexesStart)
         }
         
         cpu = CPU(bus: mainBus)
@@ -142,9 +196,9 @@ class NES {
         if !allRAM {
             let ppuRegisters = ppu.addressableRegisters
             let ppuMirror = Mirror(mirroring: ppuRegisters, times: 1023)
-            mainBus.addDevice(ppuMirror, at: 0x2000)
+            mainBus.addDevice(ppuMirror, at: MainBusAddresses.PPUCTRL)
             
-            mainBus.addDevice(oamDMA, at: 0x4014)
+            mainBus.addDevice(oamDMA, at: MainBusAddresses.OAMDMA)
         }
     }
     
@@ -175,8 +229,8 @@ class NES {
         }
         
         // Write reset vector (pointing at 0x8000, the beginning of our program)
-        mainBus.write(0x00, at: 0xFFFC)
-        mainBus.write(0x80, at: 0xFFFD)
+        mainBus.write(0x00, at: MainBusAddresses.resetVector)
+        mainBus.write(0x80, at: MainBusAddresses.resetVector + 1)
     }
     
     func startup() {
@@ -188,8 +242,15 @@ class NES {
     }
     
     func tick() {
-        cpu.tick()
-        oamDMA.tick()
+        defer { clockCount += 1 }
+        
+        if clockCount % 3 == 0 {
+            cpu.tick()
+            oamDMA.tick()
+            clockCount = 0
+        }
+
+        ppu.tick()
     }
     
     func stepCPU() {
