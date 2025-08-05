@@ -6,7 +6,7 @@
 //
 
 
-protocol Addressable : AnyObject {
+protocol Addressable : AnyObject, Sequence where Iterator == AddressableIterator {
     typealias Offset = Address
     
     var length : Int { get }
@@ -16,3 +16,22 @@ protocol Addressable : AnyObject {
     func read(at offset: Offset) -> Byte
 }
 
+extension Addressable {
+    func makeIterator() -> Iterator {
+        return AddressableIterator(addressable: self)
+    }
+}
+
+struct AddressableIterator : IteratorProtocol {
+    typealias Element = Byte
+    
+    unowned let addressable : any Addressable
+    var index: Address = 0
+    
+    mutating func next() -> Element? {
+        if index < addressable.length {
+            return addressable.read(at: index)
+        }
+        return nil
+    }
+}

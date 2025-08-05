@@ -8,9 +8,22 @@
 
 import Dispatch
 import Observation
+import Foundation
 
 typealias Address = UInt16
 typealias Byte = UInt8
+
+extension Address {
+    var hexCode : String {
+        String(format: "$%04X", self)
+    }
+}
+
+extension Byte {
+    var hexCode : String {
+        String(format: "$%02X", self)
+    }
+}
 
 @Observable
 class NES {
@@ -253,11 +266,27 @@ class NES {
         ppu.tick()
     }
     
-    func stepCPU() {
-        if cpu.cyclesBeforeNextInstruction == 0 {
+    func tickCPU() {
+        while clockCount % 3 != 0 {
             tick()
         }
+        tick()
+    }
+    
+    func stepCPU() {
+        if cpu.cyclesBeforeNextInstruction == 0 {
+            tickCPU()
+        }
         while cpu.cyclesBeforeNextInstruction > 0 {
+            tickCPU()
+        }
+    }
+    
+    func stepFrame() {
+        while ppu.status.contains(.vblank) {
+            tick()
+        }
+        while !ppu.status.contains(.vblank) {
             tick()
         }
     }

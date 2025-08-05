@@ -25,14 +25,14 @@ extension PPU {
         struct PPUMASK : OptionSet {    // Rendering settings
             let rawValue: Byte
             
-            static let greyscale = PPUCTRL(rawValue: 1 << 0)        // Force greyscale by ANDing colour with 0x30 to force them to use the grey column
-            static let renderLeftBackgroundBorder = PPUCTRL(rawValue: 1 << 1)
-            static let renderLeftSpritsBorder = PPUCTRL(rawValue: 1 << 2)
-            static let renderBackground = PPUCTRL(rawValue: 1 << 3)
-            static let renderSprites = PPUCTRL(rawValue: 1 << 4)
-            static let emphasizeRed = PPUCTRL(rawValue: 1 << 5)     // https://www.nesdev.org/wiki/Colour_emphasis
-            static let emphasizeGreen = PPUCTRL(rawValue: 1 << 6)
-            static let emphasizeBlue = PPUCTRL(rawValue: 1 << 7)
+            static let greyscale = PPUMASK(rawValue: 1 << 0)        // Force greyscale by ANDing colour with 0x30 to force them to use the grey column
+            static let renderLeftBackgroundBorder = PPUMASK(rawValue: 1 << 1)
+            static let renderLeftSpritsBorder = PPUMASK(rawValue: 1 << 2)
+            static let renderBackground = PPUMASK(rawValue: 1 << 3)
+            static let renderSprites = PPUMASK(rawValue: 1 << 4)
+            static let emphasizeRed = PPUMASK(rawValue: 1 << 5)     // https://www.nesdev.org/wiki/Colour_emphasis
+            static let emphasizeGreen = PPUMASK(rawValue: 1 << 6)
+            static let emphasizeBlue = PPUMASK(rawValue: 1 << 7)
         }
         
         struct PPUStatus : OptionSet {    // Rendering events
@@ -41,9 +41,9 @@ extension PPU {
             // Bits 0 through 4 are unused...
             
             // All 3 of these flags are cleared on dot 1 of the prerender scanline
-            static let spriteOverflow = PPUCTRL(rawValue: 1 << 5)
-            static let spriteZeroHit = PPUCTRL(rawValue: 1 << 6)
-            static let vblank = PPUCTRL(rawValue: 1 << 7)   // Cleared on read
+            static let spriteOverflow = PPUStatus(rawValue: 1 << 5)
+            static let spriteZeroHit = PPUStatus(rawValue: 1 << 6)
+            static let vblank = PPUStatus(rawValue: 1 << 7)   // Cleared on read
         }
         
         let length = 0x8
