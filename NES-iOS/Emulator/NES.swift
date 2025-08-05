@@ -83,7 +83,7 @@ class NES {
     let cpu : CPU
     let ppu : PPU
     let oamDMA : OAMDMA
-
+    
     private(set) var clockCount : UInt = 0
     
     /// Sets up a full NES emulator stack. `startup()` should be called before use.
@@ -92,30 +92,42 @@ class NES {
     init(allRAM: Bool = false) {
         if allRAM {
             let ram: any Addressable = {
+#if compiler(>=6.2)
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x10000>()
                 } else {
+#endif
                     return RAM_legacy(length: 0x10000)
+#if compiler(>=6.2)
                 }
+#endif
             }()
             mainBus.addDevice(ram, at: 0x0000)
             
             let ppuRAM: any Addressable = {
+#if compiler(>=6.2)
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x4000>()
                 } else {
+#endif
                     return RAM_legacy(length: 0x4000)
-                  }
+#if compiler(>=6.2)
+                }
+#endif
             }()
             ppuBus.addDevice(ppuRAM, at: 0x0000)
         } else {
             // MARK: CPU Bus
             let ram: any Addressable = {
+#if compiler(>=6.2)
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x800>()
                 } else {
+#endif
                     return RAM_legacy(length: 0x800)
-                  }
+#if compiler(>=6.2)
+                }
+#endif
             }()
             let ramMirror = Mirror(mirroring: ram, times: 3)
             mainBus.addDevice(ramMirror, at: MainBusAddresses.ramStart)
@@ -124,11 +136,15 @@ class NES {
             // create the PPU! So it happens later.
             
             let apuRegisters: any Addressable = {
+#if compiler(>=6.2)
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x14>()
                 } else {
+#endif
                     return RAM_legacy(length: 0x14)
-                  }
+#if compiler(>=6.2)
+                }
+#endif
             }()  // TODO: use a real APU
             mainBus.addDevice(apuRegisters, at: MainBusAddresses.apuPulse1Start)
             
@@ -172,30 +188,42 @@ class NES {
             // $4018–$401F are for CPU test mode, so unused for us.
             
             let cartridgeCPUMap: any Addressable = {
+#if compiler(>=6.2)
                 if #available(iOS 26.0, *) {
                     return RAM_26<0xBFE0>()
                 } else {
+#endif
                     return RAM_legacy(length: 0xBFE0)
-                  }
+#if compiler(>=6.2)
+                }
+#endif
             }()       // TODO: real cartridges and mappers
             mainBus.addDevice(cartridgeCPUMap, at: MainBusAddresses.cartridgeStart)
             
             // MARK: PPU Bus
             let cartridgePPUMap: any Addressable = {
+#if compiler(>=6.2)
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x3F00>()
                 } else {
+#endif
                     return RAM_legacy(length: 0x3F00)
-                  }
+#if compiler(>=6.2)
+                }
+#endif
             }()       // TODO: real cartridges and mappers
             ppuBus.addDevice(cartridgePPUMap, at: PPUBusAddresses.cartridgeStart)
             
             let paletteRam: any Addressable = {
+#if compiler(>=6.2)
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x0020>()
                 } else {
+#endif
                     return RAM_legacy(length: 0x0020)
-                  }
+#if compiler(>=6.2)
+                }
+#endif
             }()
             let paletteMirror = Mirror(mirroring: paletteRam, times: 7)
             ppuBus.addDevice(paletteMirror, at: PPUBusAddresses.paletteRAMIndexesStart)
@@ -219,12 +247,12 @@ class NES {
          LDA #0
          LDX #3
          CLC
-
+         
          loop:
          ADC #9
          DEX
          BNE loop
-
+         
          NOP
          NOP
          NOP
@@ -259,7 +287,7 @@ class NES {
             oamDMA.tick()
             clockCount = 0
         }
-
+        
         ppu.tick()
         clockCount += 1
     }

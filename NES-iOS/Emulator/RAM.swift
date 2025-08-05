@@ -27,6 +27,7 @@ class RAM_legacy : Addressable {
     private var buffer : [Byte]
 }
 
+#if compiler(>=6.2)
 @available(iOS 19.0.0, *)
 class RAM_26<let staticLength: Int> : Addressable {
     var length: Int { return staticLength }
@@ -42,3 +43,4 @@ class RAM_26<let staticLength: Int> : Addressable {
     
     private var buffer = InlineArray<staticLength, Byte>(repeating: 0)
 }
+#endif

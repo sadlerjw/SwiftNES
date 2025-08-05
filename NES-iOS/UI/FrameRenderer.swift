@@ -16,10 +16,15 @@ class FrameRenderer {
     private var nes : NES! = nil
     var image: UIImage? = nil
     var isPaused = true
-    var fps : Int { frameCount == 0 ? 0 : Int(totalFrameDurations / Double(frameCount)) }
+    var fps : Int {
+        let sum = frameDurations.reduce(0, +)
+        guard sum > 0 else { return 0}
+        
+        return Int(Double(frameDurations.count) / sum)
+    }
     
-    private var frameCount = 0
-    private var totalFrameDurations : CFTimeInterval = 0
+    private var frameIndex = 0
+    private var frameDurations = [CFTimeInterval](repeating: 0, count: 5)
     private var lastFrameTimestamp : CFTimeInterval = 0
     
     func start(with nes: NES) {
@@ -34,11 +39,9 @@ class FrameRenderer {
         guard !isPaused,
               let nes else { return }
         
-        let actualFramesPerSecond = 1 / (displayLink.timestamp - lastFrameTimestamp)
-        totalFrameDurations += actualFramesPerSecond
-        frameCount += 1
+        frameDurations[frameIndex] = displayLink.timestamp - lastFrameTimestamp
+        frameIndex = (frameIndex + 1) % frameDurations.count
         
-//        print("Frame time: \(displayLink.timestamp - lastFrameTimestamp)")
         lastFrameTimestamp = displayLink.timestamp
         
         nes.stepFrame()
