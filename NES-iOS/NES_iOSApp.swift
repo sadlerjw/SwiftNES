@@ -19,8 +19,7 @@ struct NES_iOSApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                NESDebuggingView()
-                    .environment(nes)
+                NESDebuggingView(nes: nes)
             }
         }
     }

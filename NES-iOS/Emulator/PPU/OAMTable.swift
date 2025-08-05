@@ -7,7 +7,7 @@
 
 
 struct OAMTable {
-    var raw : Addressable
+    var raw : any Addressable
     
     init() {
         if #available(iOS 26.0, *) {

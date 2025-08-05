@@ -41,11 +41,16 @@ class PPU {
     
     let bytesPerPixel = 4
     private(set) var previousFrame = Data(repeating: 0, count: 245760)         // 256x240x4 (RGBA)
-    private(set) var currentFrameBuffer = Data(repeating: 0, count: 245760)
+    private(set) var currentFrameBuffer = Array(repeating: Byte(0), count: 245760) //= Data(repeating: 0, count: 245760)
     
     private(set) var isEvenFrame = true
     var scanline : Int = 261
     var cycle : Int = 0
+    
+    // TODO: remove
+    var startR = Byte.random(in: 0...255)
+    var startG = Byte.random(in: 0...255)
+    var startB = Byte.random(in: 0...255)
     
     init(bus: Bus) {
         self.bus = bus
@@ -53,18 +58,16 @@ class PPU {
     }
     
     private func swapFrameBuffers() {
-        let temp = previousFrame
-        previousFrame = currentFrameBuffer
-        currentFrameBuffer = temp
+        previousFrame = Data(currentFrameBuffer)
     }
     
     func tick() {
         if (0 ..< 240).contains(scanline) {
             // Then this is a visible scanline
             if (1 ... 256).contains(cycle) {
-                let r = UInt8.random(in: 0 ... 255)
-                let g = UInt8.random(in: 0 ... 255)
-                let b = UInt8.random(in: 0 ... 255)
+                let r = startR &+ Byte((scanline + cycle) % 256)
+                let g = startG &+ Byte((scanline + cycle) % 256)
+                let b = startB &+ Byte((scanline + cycle) % 256)
                 let a = UInt8(0xFF)
                 
                 let pixel = cycle - 1
@@ -86,6 +89,9 @@ class PPU {
             if scanline == 261 {
                 scanline = 0
                 status.remove(.vblank) // TODO: this isn't the right place for this
+                startR = Byte.random(in: 0...255)
+                startG = Byte.random(in: 0...255)
+                startB = Byte.random(in: 0...255)
             } else {
                 scanline += 1
             }

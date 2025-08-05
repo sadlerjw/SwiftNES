@@ -25,7 +25,6 @@ extension Byte {
     }
 }
 
-@Observable
 class NES {
     enum MainBusAddresses {
         static let ramStart : Address = 0x0000
@@ -92,7 +91,7 @@ class NES {
     ///                         Should be used only for unit tests or debugging.
     init(allRAM: Bool = false) {
         if allRAM {
-            let ram: Addressable = {
+            let ram: any Addressable = {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x10000>()
                 } else {
@@ -101,7 +100,7 @@ class NES {
             }()
             mainBus.addDevice(ram, at: 0x0000)
             
-            let ppuRAM: Addressable = {
+            let ppuRAM: any Addressable = {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x4000>()
                 } else {
@@ -111,7 +110,7 @@ class NES {
             ppuBus.addDevice(ppuRAM, at: 0x0000)
         } else {
             // MARK: CPU Bus
-            let ram: Addressable = {
+            let ram: any Addressable = {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x800>()
                 } else {
@@ -124,7 +123,7 @@ class NES {
             // PPU registers normally get mapped here, but first we have to
             // create the PPU! So it happens later.
             
-            let apuRegisters: Addressable = {
+            let apuRegisters: any Addressable = {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x14>()
                 } else {
@@ -172,7 +171,7 @@ class NES {
             
             // $4018–$401F are for CPU test mode, so unused for us.
             
-            let cartridgeCPUMap: Addressable = {
+            let cartridgeCPUMap: any Addressable = {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0xBFE0>()
                 } else {
@@ -182,7 +181,7 @@ class NES {
             mainBus.addDevice(cartridgeCPUMap, at: MainBusAddresses.cartridgeStart)
             
             // MARK: PPU Bus
-            let cartridgePPUMap: Addressable = {
+            let cartridgePPUMap: any Addressable = {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x3F00>()
                 } else {
@@ -191,7 +190,7 @@ class NES {
             }()       // TODO: real cartridges and mappers
             ppuBus.addDevice(cartridgePPUMap, at: PPUBusAddresses.cartridgeStart)
             
-            let paletteRam: Addressable = {
+            let paletteRam: any Addressable = {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x0020>()
                 } else {
@@ -255,8 +254,6 @@ class NES {
     }
     
     func tick() {
-        defer { clockCount += 1 }
-        
         if clockCount % 3 == 0 {
             cpu.tick()
             oamDMA.tick()
@@ -264,6 +261,7 @@ class NES {
         }
 
         ppu.tick()
+        clockCount += 1
     }
     
     func tickCPU() {

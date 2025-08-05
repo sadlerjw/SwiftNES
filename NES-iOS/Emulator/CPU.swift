@@ -8,7 +8,6 @@
 import Foundation
 import Observation
 
-@Observable
 class CPU {
     struct StatusRegister : OptionSet {
         private static let alwaysOneRawValue : UInt8 = 1 << 5
@@ -103,21 +102,25 @@ class CPU {
         let baseAddress: Address = 0x0100
         var stackPointer: Byte = 0
         
+        @inline(__always)
         mutating func push(_ value: Byte) {
             bus.write(value, at: baseAddress + Address(stackPointer))
             stackPointer &-= 1
         }
         
+        @inline(__always)
         mutating func push(_ value: Address) {
             push(value.high)
             push(value.low)
         }
         
+        @inline(__always)
         mutating func popByte() -> Byte {
             stackPointer &+= 1
             return bus.read(baseAddress + Address(stackPointer))
         }
         
+        @inline(__always) 
         mutating func popAddress() -> Address {
             let low = popByte()
             let high = popByte()

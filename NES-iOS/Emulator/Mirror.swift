@@ -6,7 +6,7 @@
 //
 
 class Mirror : Addressable {
-    let addressable : Addressable
+    let addressable : any Addressable
     let numberOfMirrors : UInt
     
     var length: Int {
@@ -22,7 +22,7 @@ class Mirror : Addressable {
     ///   - addressable: The `Addressable` to mirror
     ///   - times: The number of times the `Addressable` should be mirrored. Passing `0` is
     ///                          the same as using the `Addressable` as-is.
-    init(mirroring addressable: Addressable, times: UInt) {
+    init(mirroring addressable: any Addressable, times: UInt) {
         self.addressable = addressable
         self.numberOfMirrors = times
     }
