@@ -164,6 +164,28 @@ struct PPUAddressRegister {
         self.init(rawValue: .init(reg: 0))
     }
     
+    /// Add this offset to 0x2000 (NES.PPUBusAddresses.nametable0Start) to get the correct tile
+    var nametableAddressOffset: Address {
+        return rawValue.reg & 0x0FFF    // The low 12 bits (everything except fineY)
+    }
+    
+    /// Add this offset to 0x23C0 (NES.PPUBusAddresses.nametable0Start) to get the correct tile
+    var attributeAddress: Address {
+        let high3BitsOfCoarseX = Address(coarseXScroll >> 2)
+        let high3BitsOfCoarseY = Address(coarseYScroll >> 2)
+        
+        // Build address like this, where NN is
+        // nametableY followed by nametableX, and yyy
+        // is the high 3 bits of coarseY, and xxx
+        // is the high 3 bits of coarseX:
+        //
+        // 0000 NN 0000 yyy xxx
+        return Address(nametableY ? 1 : 0) << 11 |
+            Address(nametableX ? 1 : 0) << 10 |
+            high3BitsOfCoarseY << 3 |
+            high3BitsOfCoarseX
+    }
+    
     var coarseXScroll : UInt8 { // actually only 5 bits
         get { return Byte(rawValue.coarse_x) }
         set {
@@ -194,6 +216,32 @@ struct PPUAddressRegister {
         get { return UInt8(rawValue.fine_y) }
         set { assert(newValue < 0x8) // Ensure it fits in 3 bits
             rawValue.fine_y = UInt16(newValue & 0x7)
+        }
+    }
+    
+    mutating func incrementCoarseX() {
+        if coarseXScroll == 31 {
+            coarseXScroll = 0
+            nametableX.toggle()
+        } else {
+            coarseXScroll += 1
+        }
+    }
+    
+    mutating func incrementFineY() {
+        if fineYScroll < 7 {
+            fineYScroll += 1
+        } else {
+            fineYScroll = 0
+            
+            if coarseYScroll == 29 {
+                coarseYScroll = 0
+                nametableY.toggle()
+            } else if coarseYScroll == 31 { // Some weird bullshit: https://www.nesdev.org/wiki/PPU_scrolling#Y_increment
+                coarseYScroll = 0
+            } else {
+                coarseYScroll += 1
+            }
         }
     }
 }
