@@ -9,7 +9,8 @@ extension AddressingModes {
     struct Implied : AddressingMode {
         static let sharedInstance = Self.init()
         
-        func fetch(cpu: borrowing CPU) {
+        
+        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
             // No-op!
             cpu.fetchedFromAddress = nil
         }

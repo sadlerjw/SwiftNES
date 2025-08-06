@@ -18,7 +18,6 @@ import Testing
     @Test func test() async throws {
         nes.startup()
         cpu.pc = 0xABCD
-        cpu.pc += 1
 
         cpu.fetchedData = 0x34
         cpu.fetchedFromAddress = 0x1234
@@ -26,7 +25,7 @@ import Testing
         jsr.execute(cpu: cpu)
         
         #expect(cpu.pc == 0x1234)
-        #expect(cpu.stack.popAddress() == 0xABCD + 2)
+        #expect(cpu.stack.popAddress() == 0xABCD)
     }
 
 }

@@ -14,13 +14,6 @@ protocol AddressingMode {
 }
 
 extension AddressingMode {
-    func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-        // TODO: this is only here to resolve compilation errors for as-yet unimplemented modes.
-        // Remove this later.
-    }
-}
-
-extension AddressingMode {
     var name : String {
         String(describing: type(of: self))
     }
