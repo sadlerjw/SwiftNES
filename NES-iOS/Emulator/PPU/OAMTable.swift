@@ -14,10 +14,10 @@ struct OAMTable {
         if #available(iOS 26.0, *) {
             raw = RAM_26<256>()
         } else {
-#endif
             raw = RAM_legacy(length: 256)
-#if compiler(>=6.2)
         }
+#else
+        raw = RAM_legacy(length: 256)
 #endif
     }
     

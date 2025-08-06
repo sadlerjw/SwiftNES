@@ -35,3 +35,22 @@ struct AddressableIterator : IteratorProtocol {
         return nil
     }
 }
+
+class DummyAddressable : Addressable {
+    let length: Int
+    var name: String {
+        return "Dummy (length: \(length))"
+    }
+    
+    init(length: Int) {
+        self.length = length
+    }
+    
+    func write(_ value: Byte, at offset: Offset) {
+        // No-op
+    }
+    
+    func read(at offset: Offset) -> Byte {
+        return 0
+    }
+}

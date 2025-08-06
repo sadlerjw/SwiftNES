@@ -100,10 +100,10 @@ class NES {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x10000>()
                 } else {
-#endif
                     return RAM_legacy(length: 0x10000)
-#if compiler(>=6.2)
                 }
+#else
+                return RAM_legacy(length: 0x10000)
 #endif
             }()
             mainBus.addDevice(ram, at: 0x0000)
@@ -113,10 +113,10 @@ class NES {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x4000>()
                 } else {
-#endif
                     return RAM_legacy(length: 0x4000)
-#if compiler(>=6.2)
                 }
+#else
+                return RAM_legacy(length: 0x4000)
 #endif
             }()
             ppuBus.addDevice(ppuRAM, at: 0x0000)
@@ -127,10 +127,10 @@ class NES {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x800>()
                 } else {
-#endif
                     return RAM_legacy(length: 0x800)
-#if compiler(>=6.2)
                 }
+#else
+                return RAM_legacy(length: 0x800)
 #endif
             }()
             let ramMirror = Mirror(mirroring: ram, times: 3)
@@ -144,10 +144,10 @@ class NES {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x14>()
                 } else {
-#endif
                     return RAM_legacy(length: 0x14)
-#if compiler(>=6.2)
                 }
+#else
+                return RAM_legacy(length: 0x14)
 #endif
             }()  // TODO: use a real APU
             mainBus.addDevice(apuRegisters, at: MainBusAddresses.apuPulse1Start)
@@ -191,31 +191,14 @@ class NES {
             
             // $4018–$401F are for CPU test mode, so unused for us.
             
-            let cartridgeCPUMap: any Addressable = {
-#if compiler(>=6.2)
-                if #available(iOS 26.0, *) {
-                    return RAM_26<0xBFE0>()
-                } else {
-#endif
-                    return RAM_legacy(length: 0xBFE0)
-#if compiler(>=6.2)
-                }
-#endif
-            }()       // TODO: real cartridges and mappers
+            // The actual cartridge will handle these addresses but it's useful
+            // to have a dummy on the bus so that tests and debugging code can
+            // run even when no cartridge is loaded
+            let cartridgeCPUMap = DummyAddressable(length: 0xBFE0)
             mainBus.addDevice(cartridgeCPUMap, at: MainBusAddresses.cartridgeStart)
             
             // MARK: PPU Bus
-            let cartridgePPUMap: any Addressable = {
-#if compiler(>=6.2)
-                if #available(iOS 26.0, *) {
-                    return RAM_26<0x3F00>()
-                } else {
-#endif
-                    return RAM_legacy(length: 0x3F00)
-#if compiler(>=6.2)
-                }
-#endif
-            }()       // TODO: real cartridges and mappers
+            let cartridgePPUMap = DummyAddressable(length: 0x3F00)
             ppuBus.addDevice(cartridgePPUMap, at: PPUBusAddresses.cartridgeStart)
             
             let paletteRam: any Addressable = {
@@ -223,10 +206,10 @@ class NES {
                 if #available(iOS 26.0, *) {
                     return RAM_26<0x0020>()
                 } else {
-#endif
                     return RAM_legacy(length: 0x0020)
-#if compiler(>=6.2)
                 }
+#else
+                return RAM_legacy(length: 0x0020)
 #endif
             }()
             let paletteMirror = Mirror(mirroring: paletteRam, times: 7)
@@ -298,6 +281,10 @@ class NES {
         ppuBus.cartridgeMapper = mapper.ppuAddressSpace
         
         reset()
+    }
+    
+    func setPCForHeadlessTestROM() {
+        cpu.pc = 0xC000
     }
     
     func tick() {

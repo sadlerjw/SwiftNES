@@ -180,7 +180,9 @@ class CPU {
         guard !isHalted else { return }
         
         defer {
+            if cyclesBeforeNextInstruction > 0 {
             cyclesBeforeNextInstruction -= 1
+        }
         }
         
         guard cyclesBeforeNextInstruction == 0 else { return }

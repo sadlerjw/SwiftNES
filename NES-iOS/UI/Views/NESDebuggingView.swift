@@ -74,7 +74,7 @@ struct NESDebuggingView: View {
                 let address = Address(tuple.index)
                 let value = tuple.element
                 
-                let isNextInstruction = address == nesState.cpu.pc
+                let isNextInstruction = renderer.isPaused && address == nesState.cpu.pc
                 let backgroundStyle = isNextInstruction ? AnyShapeStyle(Color.green) : AnyShapeStyle(.background)
                 ValueRedactableLabeledContent(address.hexCode,
                                          value: "\(value.hexCode) | \(OpcodeReference.lookupTable[value]?.instruction.name ?? "Invalid")")
