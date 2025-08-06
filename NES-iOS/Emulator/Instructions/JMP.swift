@@ -26,11 +26,7 @@ extension Instructions {
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             guard let fetchedFromAddress = cpu.fetchedFromAddress else { fatalError() }
             
-            let low = cpu.fetchedData
-            let high = cpu.bus.read(fetchedFromAddress &+ 1)
-            
-            let newPC = Address(low: low, high: high)
-            cpu.pc = newPC
+            cpu.pc = fetchedFromAddress
             
             return nil
         }

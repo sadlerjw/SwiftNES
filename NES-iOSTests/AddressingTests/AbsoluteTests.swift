@@ -26,6 +26,7 @@ import Testing
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
+        #expect(cpu.pc == 0x03)
         #expect(cpu.fetchedData == 0xA9)
         #expect(cpu.fetchedFromAddress == 0xEE12)
         #expect(cpu.cyclesBeforeNextInstruction == 2)
@@ -42,6 +43,7 @@ import Testing
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         
+        #expect(cpu.pc == 0x03)
         #expect(cpu.fetchedData == 0xA9)
         #expect(cpu.fetchedFromAddress == 0xEE12)
         #expect(cpu.cyclesBeforeNextInstruction == 2)   // Can't cross page due to wraparound

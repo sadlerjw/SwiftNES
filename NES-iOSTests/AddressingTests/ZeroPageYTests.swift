@@ -28,6 +28,7 @@ import Testing
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
+        #expect(cpu.pc == 0x02)
         #expect(cpu.fetchedData == 0xA9)
         #expect(cpu.fetchedFromAddress == 0xF2)
         #expect(cpu.cyclesBeforeNextInstruction == 2)
@@ -44,6 +45,7 @@ import Testing
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         
+        #expect(cpu.pc == 0x02)
         #expect(cpu.fetchedData == 0xA9)
         #expect(cpu.fetchedFromAddress == 0xF2)
         #expect(cpu.cyclesBeforeNextInstruction == 2)   // Can't cross page due to wraparound
@@ -61,6 +63,7 @@ import Testing
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         
+        #expect(cpu.pc == 0x02)
         #expect(cpu.fetchedData == 0xA9)
         #expect(cpu.fetchedFromAddress == 0x0D)
         #expect(cpu.cyclesBeforeNextInstruction == 2) // We haven't crossed pages - we've wrapped around to the start of the zero page

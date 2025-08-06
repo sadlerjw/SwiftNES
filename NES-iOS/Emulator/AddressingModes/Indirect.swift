@@ -6,24 +6,17 @@
 //
 
 extension AddressingModes {
-    struct Indirect : AddressingMode {
+    struct Indirect : MemoryBasedAddressingMode {
         static let sharedInstance = Self.init()
-        
-        private func address(cpu: CPU) -> Address {
+
+        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
             let addressOfPointer = readAbsoluteBaseAddress(cpu: cpu)
             let pointerAddressLow = cpu.bus.read(addressOfPointer)
             let pointerAddressHigh = cpu.bus.read(addressOfPointer + 1)
-            return Address(low: pointerAddressLow, high: pointerAddressHigh)
-        }
-        
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            let address = address(cpu: cpu )
+            let address = Address(low: pointerAddressLow, high: pointerAddressHigh)
+            
             cpu.fetchedFromAddress = address
             cpu.fetchedData = cpu.bus.read(address)
-        }
-        
-        func write(_ value: Byte, cpu: borrowing CPU) {
-            cpu.bus.write(value, at: address(cpu: cpu))
         }
     }
     
@@ -38,26 +31,20 @@ extension AddressingModes {
     // Long story short, we access a table of pointers which starts
     // at the zero page address, and then index within that table
     // using X, and follow that pointer.
-    struct IndirectX : AddressingMode {
+    struct IndirectX : MemoryBasedAddressingMode {
         static let sharedInstance = Self.init()
         
-        private func address(cpu: CPU) -> Address {
+        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
             let zeroPageBaseAddress = cpu.bus.read(cpu.pc)
+            cpu.pc += 1
             let zeroPageAddress = zeroPageBaseAddress &+ cpu.x
             
             let pointerAddressLow = cpu.bus.read(Address(zeroPageAddress))
             let pointerAddressHigh = cpu.bus.read(Address(zeroPageAddress &+ 1))
-            return Address(low: pointerAddressLow, high: pointerAddressHigh)
-        }
-        
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            let address = address(cpu: cpu)
+            let address = Address(low: pointerAddressLow, high: pointerAddressHigh)
+
             cpu.fetchedFromAddress = address
             cpu.fetchedData = cpu.bus.read(address)
-        }
-        
-        func write(_ value: Byte, cpu: borrowing CPU) {
-            cpu.bus.write(value, at: address(cpu: cpu))
         }
     }
     
@@ -70,11 +57,12 @@ extension AddressingModes {
     //
     // Long story short, we follow a pointer in the zero page to a table
     // of values, and index within the table of values using Y.
-    struct IndirectY : AddressingMode {
+    struct IndirectY : MemoryBasedAddressingMode {
         static let sharedInstance = Self.init()
         
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
             let zeroPageAddress = cpu.bus.read(cpu.pc)
+            cpu.pc += 1
             
             let pointerBaseAddressLow = cpu.bus.read(Address(zeroPageAddress))
             let pointerBaseAddressHigh = cpu.bus.read(Address(zeroPageAddress &+ 1))
@@ -90,18 +78,6 @@ extension AddressingModes {
                 cpu.cyclesBeforeNextInstruction += 1
             }
         }
-        
-        func write(_ value: Byte, cpu: borrowing CPU) {
-            let zeroPageAddress = cpu.bus.read(cpu.pc)
-            
-            let pointerBaseAddressLow = cpu.bus.read(Address(zeroPageAddress))
-            let pointerBaseAddressHigh = cpu.bus.read(Address(zeroPageAddress &+ 1))
-            let pointerBaseAddress = Address(low: pointerBaseAddressLow, high: pointerBaseAddressHigh)
-            
-            let pointerAddress = pointerBaseAddress + Address(cpu.y)
-            
-            cpu.bus.write(value, at: pointerAddress)
-        }
     }
 }
 
@@ -110,6 +86,7 @@ fileprivate func readAbsoluteBaseAddress(cpu: borrowing CPU) -> Address {
     cpu.pc += 1
     
     let highWord = cpu.bus.read(cpu.pc)
+    cpu.pc += 1
     
     let address = UInt16(highWord) << 8 | UInt16(lowWord)
     

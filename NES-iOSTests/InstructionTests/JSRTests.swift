@@ -19,13 +19,9 @@ import Testing
         nes.startup()
         cpu.pc = 0xABCD
         cpu.pc += 1
-        
-        // Set the jump destination to 0x1234
-        cpu.bus.write(0x34, at: cpu.pc)
-        cpu.bus.write(0x12, at: cpu.pc + 1)
-        
+
         cpu.fetchedData = 0x34
-        cpu.fetchedFromAddress = cpu.pc
+        cpu.fetchedFromAddress = 0x1234
 
         jsr.execute(cpu: cpu)
         

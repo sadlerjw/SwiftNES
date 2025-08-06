@@ -16,13 +16,11 @@ import Testing
     }
 
     @Test func test() async throws {
-        cpu.bus.write(0x34, at: 0xFF00)
-        cpu.bus.write(0x12, at: 0xFF01)
         cpu.fetchedData = 0x34
         cpu.fetchedFromAddress = 0xFF00
         
         jmp.execute(cpu: cpu)
         
-        #expect(cpu.pc == 0x1234)
+        #expect(cpu.pc == 0xFF00)
     }
 }

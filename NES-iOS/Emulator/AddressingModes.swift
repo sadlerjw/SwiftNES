@@ -26,6 +26,14 @@ extension AddressingMode {
     }
 }
 
+protocol MemoryBasedAddressingMode : AddressingMode {}
+extension MemoryBasedAddressingMode {
+    func write(_ value: Byte, cpu: borrowing CPU) {
+        guard let address = cpu.fetchedFromAddress else { fatalError("Writing via a memory-based address mode requires cpu.fetchedFromAddress")}
+        cpu.bus.write(value, at: address)
+    }
+}
+
 enum AddressingModes {
     // Namespace for the various addressing modes
     // See the files in the AddressingModes folder

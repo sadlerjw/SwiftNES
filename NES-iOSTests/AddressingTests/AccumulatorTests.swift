@@ -16,24 +16,28 @@ import Testing
     }
     
     @Test func testNoAdditionalCycles() {
+        cpu.pc = 0x01
         cpu.a = 0xA9
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: false)
         
+        #expect(cpu.pc == 0x01)
         #expect(cpu.fetchedData == 0xA9)
         #expect(cpu.fetchedFromAddress == nil)
         #expect(cpu.cyclesBeforeNextInstruction == 2)
     }
     
     @Test func testAdditionalCycles() {
+        cpu.pc = 0x01
         cpu.a = 0xA9
         cpu.cyclesBeforeNextInstruction = 2
         cpu.fetchedData = 0x00
         
         mode.fetch(cpu: cpu, addingCycleIfPageCrossed: true)
         
+        #expect(cpu.pc == 0x01)
         #expect(cpu.fetchedData == 0xA9)
         #expect(cpu.fetchedFromAddress == nil)
         #expect(cpu.cyclesBeforeNextInstruction == 2)
