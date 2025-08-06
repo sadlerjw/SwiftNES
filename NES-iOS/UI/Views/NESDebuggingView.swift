@@ -27,14 +27,15 @@ struct NESImageView : View {
 
 struct NESDebuggingView: View {
     var nes : NES
+    
+    @State var isSelectingROM = false
     @State var image: UIImage?
     @State var renderer = FrameRenderer()
     @State var nesState = OnDemandNESState()
-    @State var visibleAddressSpaceRange: Range<Int> = 0x8000 ..< 0x8010
     
     @ViewBuilder
     var cpuSection: some View {
-        Section("CPU") {
+        VStack {
             HStack {
                 CPUStatusView("C", isEnabled: nesState.cpu.status.contains(.c))
                 CPUStatusView("Z", isEnabled: nesState.cpu.status.contains(.z))
@@ -47,34 +48,29 @@ struct NESDebuggingView: View {
             }
             .redacted(reason: renderer.isPaused ? [] : .placeholder)
             
-            ViewThatFits {
-                HStack(spacing: 32) {
+            Grid(horizontalSpacing: 48) {
+                GridRow {
                     ValueRedactableLabeledContent("A", value: nesState.cpu.a.hexCode)
                     ValueRedactableLabeledContent("X", value: nesState.cpu.x.hexCode)
                     ValueRedactableLabeledContent("Y", value: nesState.cpu.y.hexCode)
+                }
+                GridRow {
                     ValueRedactableLabeledContent("PC", value: nesState.cpu.pc.hexCode)
                     ValueRedactableLabeledContent("SP", value: nesState.cpu.stackPointer.hexCode)
-                }
-                Grid(horizontalSpacing: 48) {
-                    GridRow {
-                        ValueRedactableLabeledContent("A", value: nesState.cpu.a.hexCode)
-                        ValueRedactableLabeledContent("X", value: nesState.cpu.x.hexCode)
-                        ValueRedactableLabeledContent("Y", value: nesState.cpu.y.hexCode)
-                    }
-                    GridRow {
-                        ValueRedactableLabeledContent("PC", value: nesState.cpu.pc.hexCode)
-                        ValueRedactableLabeledContent("SP", value: nesState.cpu.stackPointer.hexCode)
-                    }
                 }
             }
             .redacted(reason: renderer.isPaused ? [] : .placeholder)
         }
+        .padding()
+        .backgroundStyle(.background)
+        .background(in: ButtonBorderShape.roundedRectangle)
+        .padding()
     }
     
     @ViewBuilder
     var ramSection: some View {
         Section("RAM") {
-            ForEach(nesState.identifiableAddressSpaceSlice(visibleAddressSpaceRange)) { tuple in
+            ForEach(nesState.addressSpaceSliceContainingPC) { tuple in
                 let address = Address(tuple.index)
                 let value = tuple.element
                 
@@ -95,29 +91,44 @@ struct NESDebuggingView: View {
                 LabeledContent("FPS", value: "\(renderer.fps)")
                     .frame(idealWidth: 70)
             }
-            List {
-                cpuSection
-                ramSection
+            cpuSection
+            ScrollViewReader { proxy in
+                List {
+                    ramSection
+                }.onChange(of: nesState.cpu.pc) { oldValue, newValue in
+                    withAnimation {
+                        proxy.scrollTo(Int(newValue))
+                    }
+                }
             }
         }
+        .background(Color(uiColor: UIColor.systemGroupedBackground))
         .task {
             renderer.start(with: nes)
             nesState = .init(nes: nes)
         }
+        .popover(isPresented: $isSelectingROM, content: {
+            RomSelector(nes: nes)
+        })
+        .onChange(of: isSelectingROM, { oldValue, newValue in
+            if oldValue && !newValue {
+                nesState.update(from: nes)
+            }
+        })
         .navigationTitle("NES Emulator")
         .toolbar {
             ToolbarItem(placement: .bottomBar) {
                 Button("Reset", systemImage: "arrow.counterclockwise") {
                     renderer.isPaused = true
                     nes.reset()
-                    nesState.update(from: nes, includingAddressSpaceRange: visibleAddressSpaceRange)
+                    nesState.update(from: nes)
                 }
             }
             ToolbarItem(placement: .bottomBar) {
                 if renderer.isPaused {
                     Button("Resume", systemImage: "play") {
                         renderer.isPaused = false
-                        nesState.update(from: nes, includingAddressSpaceRange: visibleAddressSpaceRange)
+                        nesState.update(from: nes)
                     }
                 } else {
                     Button("Pause", systemImage: "pause") {
@@ -125,7 +136,7 @@ struct NESDebuggingView: View {
                         if let image = renderer.image {
                             self.image = image
                         }
-                        nesState.update(from: nes, includingAddressSpaceRange: visibleAddressSpaceRange)
+                        nesState.update(from: nes)
                     }
                 }
 
@@ -134,7 +145,7 @@ struct NESDebuggingView: View {
                 Button("Step", systemImage: "arrow.forward") {
                     renderer.isPaused = true
                     nes.stepCPU()
-                    nesState.update(from: nes, includingAddressSpaceRange: visibleAddressSpaceRange)
+                    nesState.update(from: nes)
                 }
             }
             ToolbarItem(placement: .bottomBar) {
@@ -142,7 +153,13 @@ struct NESDebuggingView: View {
                     renderer.isPaused = true
                     nes.stepFrame()
                     image = renderer.image(from: nes.ppu.previousFrame)
-                    nesState.update(from: nes, includingAddressSpaceRange: visibleAddressSpaceRange)
+                    nesState.update(from: nes)
+                }
+            }
+            ToolbarItem(placement: .bottomBar) {
+                Button("Load ROM", systemImage: "arrow.down.square.fill") {
+                    renderer.isPaused = true
+                    isSelectingROM = true
                 }
             }
         }

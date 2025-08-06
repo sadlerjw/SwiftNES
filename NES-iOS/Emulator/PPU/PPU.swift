@@ -64,6 +64,24 @@ class PPU {
         self.actualRegisters = Registers(ppu: self)
     }
     
+    func startup() {
+        reset()
+        status.remove(.spriteZeroHit)
+        status.insert(.vblank)
+        status.insert(.spriteOverflow)
+        oamAddress = 0
+    }
+    
+    func reset() {
+        control.rawValue = 0
+        mask.rawValue = 0
+        w = false
+        actualRegisters.ppuDataBuffer = 0
+        isEvenFrame = true
+        t.rawValue.reg = 0
+        x = 0
+    }
+    
     private func swapFrameBuffers() {
         previousFrame = Data(currentFrameBuffer)
     }

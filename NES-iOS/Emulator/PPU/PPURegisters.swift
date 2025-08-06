@@ -8,7 +8,7 @@
 extension PPU {
     class Registers : Addressable {
         struct PPUCTRL : OptionSet {    // Misc PPU settings
-            let rawValue: Byte
+            var rawValue: Byte
             
             static let nametableX = PPUCTRL(rawValue: 1 << 0)                   // Can be interpreted as X scroll position bit 8
             static let nametableY = PPUCTRL(rawValue: 1 << 1)                   // Can be interpreted as Y scroll position bit 8
@@ -23,7 +23,7 @@ extension PPU {
         }
         
         struct PPUMASK : OptionSet {    // Rendering settings
-            let rawValue: Byte
+            var rawValue: Byte
             
             static let greyscale = PPUMASK(rawValue: 1 << 0)        // Force greyscale by ANDing colour with 0x30 to force them to use the grey column
             static let renderLeftBackgroundBorder = PPUMASK(rawValue: 1 << 1)
@@ -36,7 +36,7 @@ extension PPU {
         }
         
         struct PPUStatus : OptionSet {    // Rendering events
-            let rawValue: Byte
+            var rawValue: Byte
             
             // Bits 0 through 4 are unused...
             
@@ -51,7 +51,7 @@ extension PPU {
         unowned let ppu: PPU
         
         private var latchedValue : Byte = 0
-        private var ppuDataBuffer : Byte = 0
+        var ppuDataBuffer : Byte = 0
         
         init(ppu: PPU) {
             self.ppu = ppu

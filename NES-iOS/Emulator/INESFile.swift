@@ -110,11 +110,13 @@ struct INESFile {
         
         header = try Header(data: data[0 ... 15])
         
-        guard data.count >= 16 + (header.prgSizeKB + header.chrSizeKB) * 1024 else {
+        let trainerLength = header.flags6.containsTrainer ? 512 : 0
+        
+        guard data.count >= 16 + trainerLength + (header.prgSizeKB + header.chrSizeKB) * 1024 else {
             throw InvalidFileError.shorterThanHeaderIndicates
         }
         
-        let prgEndIndex = 16 + header.prgSizeKB * 1024 - 1
+        let prgEndIndex = 16 + trainerLength + header.prgSizeKB * 1024 - 1
         let chrEndIndex = prgEndIndex + header.chrSizeKB * 1024
         prgROM = Array(data[16 ... prgEndIndex])
         chrROM = Array(data[prgEndIndex + 1 ... chrEndIndex])

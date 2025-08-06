@@ -15,6 +15,7 @@ class Bus {
     }
     
     private var deviceEntries = [Entry]()
+    var cartridgeMapper : (any MapperAddressSpace)?
     
     @inline(__always)
     private func deviceEntry(at address: Address) -> Entry? {
@@ -28,6 +29,11 @@ class Bus {
     
     @inline(__always)
     func write(_ value: Byte, at address: Address) {
+        if let cartridgeMapper,
+           cartridgeMapper.write(value, at: address) {
+            return
+        }
+        
         guard let entry = deviceEntry(at: address) else { return }
         let offset : Addressable.Offset = address - entry.start
         entry.device.write(value, at: offset)
@@ -35,12 +41,22 @@ class Bus {
     
     @inline(__always)
     func read(_ address: Address) -> Byte {
+        if let cartridgeMapper,
+           let value = cartridgeMapper.read(at: address) {
+            return value
+        }
+        
         guard let entry = deviceEntry(at: address) else { fatalError("No device for address \(address)") }
         let offset : Addressable.Offset = address - entry.start
         return entry.device.read(at: offset)
     }
     
     func debugRead(_ address: Address) -> Byte {
+        if let cartridgeMapper,
+           let value = cartridgeMapper.read(at: address) {
+            return value
+        }
+        
         guard let entry = deviceEntry(at: address) else { return 0 }
         let offset : Addressable.Offset = address - entry.start
         return entry.device.read(at: offset)

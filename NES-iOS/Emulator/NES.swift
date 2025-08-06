@@ -26,6 +26,10 @@ extension Byte {
 }
 
 class NES {
+    struct MapperNotSupportedError : Error{
+        var mapperNumber: Int
+    }
+    
     enum MainBusAddresses {
         static let ramStart : Address = 0x0000
         
@@ -275,10 +279,25 @@ class NES {
     
     func startup() {
         cpu.startup()
+        ppu.startup()
     }
     
     func reset() {
         cpu.reset()
+        ppu.reset()
+    }
+    
+    func loadCartridge(data: Data) throws {
+        let rom = try INESFile(data: data)
+        guard let mapperType = Mappers.mappers[Int(rom.header.mapperNumber)] else {
+            throw MapperNotSupportedError(mapperNumber: Int(rom.header.mapperNumber))
+        }
+        
+        let mapper = mapperType.init(iNESFile: rom)
+        mainBus.cartridgeMapper = mapper.cpuAddressSpace
+        ppuBus.cartridgeMapper = mapper.ppuAddressSpace
+        
+        reset()
     }
     
     func tick() {

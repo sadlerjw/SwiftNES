@@ -16,7 +16,7 @@ class OnDemandNESState {
         var y: Byte
         
         var pc: Address
-
+        
         var status: CPU.StatusRegister
         var stackPointer: Byte
         
@@ -67,6 +67,12 @@ class OnDemandNESState {
     private(set) var cpu: CPUState
     private(set) var addressSpace = Array<Byte>(repeating: 0, count: 0x10000)
     
+    private(set) var addressesContainingPC : Range<Int> = 0x8000 ..< 0x8010
+    var addressSpaceSliceContainingPC: [EnumeratedByte] {
+        let range = addressesContainingPC
+        return addressSpace[range].enumerated().map { EnumeratedByte(index: $0.offset + range.lowerBound, element: $0.element)}
+    }
+    
     init() {
         cpu = .init()
     }
@@ -77,18 +83,23 @@ class OnDemandNESState {
         for i in 0 ... 0xFFFF {
             addressSpace[i] = nes.mainBus.debugRead(Address(i))
         }
+        
+        if !addressesContainingPC.contains(Int(cpu.pc)) {
+            let startAddress = Int(cpu.pc - cpu.pc % 0x0010)
+            addressesContainingPC = startAddress ..< startAddress + 0x0010
+        }
     }
     
-    func identifiableAddressSpaceSlice(_ range: Range<Int>) -> [EnumeratedByte] {
-        return addressSpace[range].enumerated().map { EnumeratedByte(index: $0.offset + range.lowerBound, element: $0.element)}
-    }
-    
-    func update(from nes: NES, includingAddressSpaceRange range: Range<Int>? = nil) {
+    func update(from nes: NES) {
         cpu = .init(from: nes)
-        if let range {
-            for i in range {
-                addressSpace[i] = nes.mainBus.debugRead(Address(i))
-            }
+        
+        if !addressesContainingPC.contains(Int(cpu.pc)) {
+            let startAddress = Int(cpu.pc - cpu.pc % 0x0010)
+            addressesContainingPC = startAddress ..< startAddress + 0x0010
+        }
+        
+        for i in addressesContainingPC {
+            addressSpace[i] = nes.mainBus.debugRead(Address(i))
         }
     }
 }
