@@ -44,7 +44,15 @@ class FrameRenderer {
         
         lastFrameTimestamp = displayLink.timestamp
         
-        nes.stepFrame()
+        do {
+            try nes.stepFrame()
+        } catch {
+            if error is NES.BreakpointEncounteredError {
+                isPaused = true
+            } else {
+                fatalError("Unexpected error: \(error)")
+            }
+        }
         image = image(from: nes.ppu.previousFrame)
     }
     

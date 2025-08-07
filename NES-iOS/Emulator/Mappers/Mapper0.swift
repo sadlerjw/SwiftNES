@@ -55,11 +55,8 @@ class Mapper0 : Mapper {
         }
         
         func read(at address: Address) -> Byte? {
-            if address < 0x4000 {
-                let address = address % 0x2000
-                if address < 0x1000 {
-                    return iNESFile.chrROM[Int(address % chrSize)]
-                }
+            if address < 0x2000 {
+                return iNESFile.chrROM[Int(address % chrSize)]
             }
             return nil
         }

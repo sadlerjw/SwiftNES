@@ -29,6 +29,8 @@ struct NESDebuggingView: View {
     var nes : NES
     
     @State var isSelectingROM = false
+    @State var isAddingBreakpoint = false
+    @State var newBreakpointAddress = ""
     @State var image: UIImage?
     @State var renderer = FrameRenderer()
     @State var nesState = OnDemandNESState()
@@ -77,9 +79,28 @@ struct NESDebuggingView: View {
                 
                 let isNextInstruction = renderer.isPaused && address == nesState.cpu.pc
                 let backgroundStyle = isNextInstruction ? AnyShapeStyle(Color.green) : AnyShapeStyle(.background)
-                ValueRedactableLabeledContent(address.hexCode,
-                                         value: "\(value.hexCode) | \(OpcodeReference.lookupTable[value]?.instruction.name ?? "Invalid")")
+                
+                HStack(alignment: .center) {
+                    if nesState.breakpoints.contains(address) {
+                        Circle().frame(width: 8, height: 8).foregroundColor(.blue)
+                    }
+                    ValueRedactableLabeledContent(address.hexCode,
+                                                  value: "\(value.hexCode) | \(OpcodeReference.lookupTable[value]?.instruction.name ?? "Invalid")")
+                }
                 .listRowBackground(Rectangle().foregroundStyle(backgroundStyle))
+                .contextMenu {
+                    Button {
+                        if nes.breakpoints.contains(address) {
+                            nes.breakpoints.remove(address)
+                        } else {
+                            nes.breakpoints.insert(address)
+                        }
+                        nesState.update(from: nes)
+                    } label: {
+                        Label("Toggle Breakpoint", systemImage: "arrow.forward.to.line.square")
+                    }
+
+                }
             }
             .redacted(reason: renderer.isPaused ? [] : .placeholder)
         }
@@ -111,8 +132,28 @@ struct NESDebuggingView: View {
         .popover(isPresented: $isSelectingROM, content: {
             RomSelector(nes: nes)
         })
+        .alert("Add Breakpoint", isPresented: $isAddingBreakpoint, actions: {
+            TextField("Address", text: $newBreakpointAddress)
+            Button("Add") {
+                isAddingBreakpoint = false
+                if let address = UInt16(newBreakpointAddress, radix: 16) {
+                    nes.breakpoints.insert(address)
+                    nesState.update(from: nes)
+                }
+                newBreakpointAddress = ""
+            }
+            Button("Cancel", role: .cancel) {
+                isAddingBreakpoint = false
+                newBreakpointAddress = ""
+            }
+        })
         .onChange(of: isSelectingROM, { oldValue, newValue in
             if oldValue && !newValue {
+                nesState.update(from: nes)
+            }
+        })
+        .onChange(of: renderer.isPaused, { oldValue, newValue in
+            if !oldValue && newValue {
                 nesState.update(from: nes)
             }
         })
@@ -145,14 +186,14 @@ struct NESDebuggingView: View {
             ToolbarItem(placement: .bottomBar) {
                 Button("Step", systemImage: "arrow.forward") {
                     renderer.isPaused = true
-                    nes.stepCPU()
+                    try? nes.stepCPU(enableBreakpoints: false)
                     nesState.update(from: nes)
                 }
             }
             ToolbarItem(placement: .bottomBar) {
                 Button("Step to next frame", systemImage: "arrow.forward.to.line") {
                     renderer.isPaused = true
-                    nes.stepFrame()
+                    try? nes.stepFrame()
                     image = renderer.image(from: nes.ppu.previousFrame)
                     nesState.update(from: nes)
                 }
@@ -161,6 +202,11 @@ struct NESDebuggingView: View {
                 Button("Load ROM", systemImage: "arrow.down.square.fill") {
                     renderer.isPaused = true
                     isSelectingROM = true
+                }
+            }
+            ToolbarItem(placement: .bottomBar) {
+                Button("Add Breakpoint", systemImage: "arrow.forward.to.line.square") {
+                    isAddingBreakpoint = true
                 }
             }
         }

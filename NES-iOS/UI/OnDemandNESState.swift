@@ -79,6 +79,8 @@ class OnDemandNESState {
     private(set) var cpu: CPUState
     private(set) var addressSpace = Array<Byte>(repeating: 0, count: 0x10000)
     
+    private(set) var breakpoints = Set<Address>()
+    
     private(set) var addressesContainingPC : Range<Int> = 0x8000 ..< 0x8010
     var addressSpaceSliceContainingPC: [EnumeratedByte] {
         let range = addressesContainingPC
@@ -100,6 +102,8 @@ class OnDemandNESState {
             let startAddress = Int(cpu.pc - cpu.pc % 0x0010)
             addressesContainingPC = startAddress ..< startAddress + 0x0010
         }
+        
+        breakpoints = nes.breakpoints
     }
     
     func update(from nes: NES) {
@@ -113,5 +117,7 @@ class OnDemandNESState {
         for i in addressesContainingPC {
             addressSpace[i] = nes.mainBus.debugRead(Address(i))
         }
+        
+        breakpoints = nes.breakpoints
     }
 }

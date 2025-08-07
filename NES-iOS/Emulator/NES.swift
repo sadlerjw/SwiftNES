@@ -26,6 +26,10 @@ extension Byte {
 }
 
 class NES {
+    struct BreakpointEncounteredError: Error {
+        var address: Address
+    }
+    
     struct MapperNotSupportedError : Error{
         var mapperNumber: Int
     }
@@ -87,6 +91,8 @@ class NES {
     let cpu : CPU
     let ppu : PPU
     let oamDMA : OAMDMA
+    
+    var breakpoints = Set<Address>()
     
     private(set) var clockCount : UInt = 0
     
@@ -198,8 +204,30 @@ class NES {
             mainBus.addDevice(cartridgeCPUMap, at: MainBusAddresses.cartridgeStart)
             
             // MARK: PPU Bus
-            let cartridgePPUMap = DummyAddressable(length: 0x3F00)
+            let cartridgePPUMap = DummyAddressable(length: 0x2000)
             ppuBus.addDevice(cartridgePPUMap, at: PPUBusAddresses.cartridgeStart)
+            
+            let vram : any Addressable = {
+#if compiler(>=6.2)
+                if #available(iOS 26.0, *) {
+                    return RAM_26<0x1000>()
+                } else {
+                    return RAM_legacy(length: 0x1000)
+                }
+#else
+                return RAM_legacy(length: 0x1000)
+#endif
+            }()
+            let mirroredVRAM = ClosureAddressable(length: 0x0F00,
+                                                  name: "Mirrored VRAM") { value, offset in
+                vram.write(value, at: offset)
+            } read: { offset in
+                return vram.read(at: offset)
+            }
+            
+            ppuBus.addDevice(vram, at: 0x2000)
+            ppuBus.addDevice(mirroredVRAM, at: 0x3000)
+
             
             let paletteRam: any Addressable = {
 #if compiler(>=6.2)
@@ -287,8 +315,11 @@ class NES {
         cpu.pc = 0xC000
     }
     
-    func tick() {
+    func tick(enableBreakpoints: Bool) throws {
         if clockCount % 3 == 0 {
+            guard !(enableBreakpoints && breakpoints.contains(cpu.pc)) else {
+                throw BreakpointEncounteredError(address: cpu.pc)
+            }
             cpu.tick()
             oamDMA.tick()
             clockCount = 0
@@ -298,28 +329,28 @@ class NES {
         clockCount += 1
     }
     
-    func tickCPU() {
+    func tickCPU(enableBreakpoints: Bool = false) throws {
         while clockCount % 3 != 0 {
-            tick()
+            try tick(enableBreakpoints: enableBreakpoints)
         }
-        tick()
+        try tick(enableBreakpoints: enableBreakpoints)
     }
     
-    func stepCPU() {
+    func stepCPU(enableBreakpoints: Bool = false) throws {
         if cpu.cyclesBeforeNextInstruction == 0 {
-            tickCPU()
+            try tickCPU(enableBreakpoints: enableBreakpoints)
         }
         while cpu.cyclesBeforeNextInstruction > 0 {
-            tickCPU()
+            try tickCPU(enableBreakpoints: enableBreakpoints)
         }
     }
     
-    func stepFrame() {
+    func stepFrame() throws {
         while ppu.status.contains(.vblank) {
-            tick()
+            try tick(enableBreakpoints: true)
         }
         while !ppu.status.contains(.vblank) {
-            tick()
+            try tick(enableBreakpoints: true)
         }
     }
 }

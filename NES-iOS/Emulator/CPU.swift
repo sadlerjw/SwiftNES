@@ -207,15 +207,18 @@ class CPU {
         
         guard cyclesBeforeNextInstruction == 0 else { return }
         
-        if nonMaskableInterruptPending {
-            stack.push(status.rawValue)
+        guard !nonMaskableInterruptPending else {
+            print("NMI")
             stack.push(pc)
+            stack.push(status.rawValue)
             
             let low = bus.read(NES.MainBusAddresses.nmiVector)
             let high = bus.read(NES.MainBusAddresses.nmiVector + 1)
             pc = Address(low: low, high: high)
             
             nonMaskableInterruptPending = false
+            
+            return
         }
         
         fetchedData = 0
