@@ -153,6 +153,10 @@ class CPU {
     var interruptsEnabled: Bool = false
     var changingInterruptsEnabledShouldBeDelayed = false
     
+    var nonMaskableInterruptPending = false
+    
+    var cycle = 1
+    
     private(set) var isHalted = false
     
     unowned let bus : Bus
@@ -176,6 +180,8 @@ class CPU {
         fetchedData = 0
         fetchedFromAddress = nil
         cyclesBeforeNextInstruction = 0
+        
+        cycle = 1
     }
     
     func requestHalt() {
@@ -186,16 +192,31 @@ class CPU {
         isHalted = false
     }
     
+    func nmi() {
+        nonMaskableInterruptPending = true
+    }
+    
     func tick() {
         guard !isHalted else { return }
         
         defer {
             if cyclesBeforeNextInstruction > 0 {
-            cyclesBeforeNextInstruction -= 1
-        }
+                cyclesBeforeNextInstruction -= 1
+            }
         }
         
         guard cyclesBeforeNextInstruction == 0 else { return }
+        
+        if nonMaskableInterruptPending {
+            stack.push(status.rawValue)
+            stack.push(pc)
+            
+            let low = bus.read(NES.MainBusAddresses.nmiVector)
+            let high = bus.read(NES.MainBusAddresses.nmiVector + 1)
+            pc = Address(low: low, high: high)
+            
+            nonMaskableInterruptPending = false
+        }
         
         fetchedData = 0
         fetchedFromAddress = nil

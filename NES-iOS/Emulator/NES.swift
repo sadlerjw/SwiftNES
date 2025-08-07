@@ -217,7 +217,7 @@ class NES {
         }
         
         cpu = CPU(bus: mainBus)
-        ppu = PPU(bus: ppuBus)
+        ppu = PPU(bus: ppuBus, cpu: cpu)
         oamDMA = OAMDMA(cpu: cpu)
         
         if !allRAM {

@@ -116,6 +116,9 @@ extension PPU {
                 ppu.w = false
                 
                 latchedValue = ppu.status.rawValue
+                
+                // vblank gets cleared on read according to https://www.nesdev.org/wiki/PPU_registers#PPUSTATUS
+                ppu.status.remove(.vblank)
             case 3: // OAMADDR is write-only
                 break
             case 4: // OAMDATA

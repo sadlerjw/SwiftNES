@@ -14,12 +14,13 @@ class PPU {
     }
     
     unowned let bus : Bus
+    unowned let cpu : CPU
     
     // Registers exposed on the main bus:
     var control = Registers.PPUCTRL() {
         didSet {
             if status.contains(.vblank) && !oldValue.contains(.vblankNMI) && control.contains(.vblankNMI) {
-                // TODO: send NMI immediately
+                cpu.nmi()
             }
             t.nametableX = control.contains(.nametableX)
             t.nametableY = control.contains(.nametableY)
@@ -59,8 +60,9 @@ class PPU {
     private(set) var patternTableTileLow: Byte = 0
     private(set) var patternTableTileHigh: Byte = 0
     
-    init(bus: Bus) {
+    init(bus: Bus, cpu: CPU) {
         self.bus = bus
+        self.cpu = cpu
         self.actualRegisters = Registers(ppu: self)
     }
     
@@ -200,7 +202,7 @@ class PPU {
                                                                        tile: nametableByte,
                                                                        highBitPlane: false))
                 case 0:
-                    patternTableTileLow = bus.read(patternTableAddress(leftTable: !control.contains(.backgroundPatternTableAddress),
+                    patternTableTileHigh = bus.read(patternTableAddress(leftTable: !control.contains(.backgroundPatternTableAddress),
                                                                        tile: nametableByte,
                                                                        highBitPlane: true))
                     
@@ -255,7 +257,7 @@ class PPU {
         if scanline == 241 && cycle == 1 {
             status.insert(.vblank)
             if control.contains(.vblankNMI) {
-                // TODO: send VBlank NMI
+                cpu.nmi()
             }
         }
         
@@ -268,11 +270,21 @@ class PPU {
         
         // TODO: check these numbers
         
-        if scanline == 261 && ( (isEvenFrame && cycle == 340) || (!isEvenFrame && cycle == 339) ) {
-            cycle = 0
-            scanline = 0
-            isEvenFrame.toggle()
-            status.remove(.vblank) // TODO: this isn't the right place for this
+        if scanline == 261 {
+            if cycle == 1 {
+                status.remove(.vblank)
+                status.remove(.spriteOverflow)
+                status.remove(.spriteZeroHit)
+            }
+            
+            if (isEvenFrame && cycle == 340) || (!isEvenFrame && cycle == 339) {
+                cycle = 0
+                scanline = 0
+                isEvenFrame.toggle()
+            } else {
+                cycle += 1
+            }
+            
         } else if cycle == 340 {
             cycle = 0
             scanline += 1
