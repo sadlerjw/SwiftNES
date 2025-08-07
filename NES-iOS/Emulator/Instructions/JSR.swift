@@ -21,7 +21,7 @@ extension Instructions {
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             guard let fetchedFromAddress = cpu.fetchedFromAddress else { fatalError() }
 
-            cpu.stack.push(cpu.pc)
+            cpu.stack.push(cpu.pc - 1)
 
             cpu.pc = fetchedFromAddress
             

@@ -25,7 +25,7 @@ import Testing
         jsr.execute(cpu: cpu)
         
         #expect(cpu.pc == 0x1234)
-        #expect(cpu.stack.popAddress() == 0xABCD)
+        #expect(cpu.stack.popAddress() == 0xABCC)
     }
 
 }
