@@ -126,6 +126,16 @@ class CPU {
             let high = popByte()
             return Address(low: low, high: high)
         }
+        
+        func peekByte(offset: Byte = 0) -> Byte {
+            return bus.read(baseAddress + Address(stackPointer &+ 1 &+ offset))
+        }
+        
+        mutating func peekAddress() -> Address {
+            let low = peekByte(offset: 0)
+            let high = peekByte(offset: 1)
+            return Address(low: low, high: high)
+        }
     }
 
     var a: UInt8 = 0
@@ -194,12 +204,15 @@ class CPU {
         changingInterruptsEnabledShouldBeDelayed = false
         
         let opcode = bus.read(pc)
-        pc += 1
         
         guard let opcodeReference = OpcodeReference.lookupTable[opcode] else {
             print("Invalid opcode: \(opcode)")
             return
         }
+        
+        printout(opcodeReference: opcodeReference)
+        
+        pc += 1
         
         cyclesBeforeNextInstruction = opcodeReference.defaultCycles
         
@@ -227,6 +240,29 @@ class CPU {
             addressingMode.write(fetchedData, cpu: self)
             addressingMode.write(readModifyWriteResult, cpu: self)
         }
+    }
+    
+    func printout(opcodeReference: OpcodeReference) {
+        func formatHex(_ byte: Byte) -> String {
+            String(format: "%02X", byte)
+        }
+        func formatHex(_ address: Address) -> String {
+            String(format: "%04X", address)
+        }
+        
+        let address = String(format: "%04X", pc)
+        
+        var bytes = formatHex(opcodeReference.opcode)
+        for i in 1 ..< opcodeReference.totalBytes {
+            bytes = bytes + " " + formatHex(bus.read(pc + Address(i)))
+        }
+        bytes = bytes.padding(toLength: 8, withPad: " ", startingAt: 0)
+        
+        let firstHalf = "\(address)  \(bytes)  \(opcodeReference.instruction.name)".padding(toLength: 48, withPad: " ", startingAt: 0)
+        
+        let secondHalf = "A:\(formatHex(a)) X:\(formatHex(x)) Y:\(formatHex(y)) P:\(formatHex(status.rawValue)) SP:\(formatHex(stack.stackPointer))"
+        
+        print("\(firstHalf)\(secondHalf)")
     }
 }
 

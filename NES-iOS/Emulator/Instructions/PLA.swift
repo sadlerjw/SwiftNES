@@ -21,6 +21,9 @@ extension Instructions {
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
             cpu.a = cpu.stack.popByte()
             
+            cpu.status.setZ(cpu.a == 0)
+            cpu.status.setN(cpu.a & 0x80 != 0)
+            
             return nil
         }
     }

@@ -21,7 +21,7 @@ import Testing
         cpu.status.insert(.n)
         
         cpu.a =           0b0000_0001
-        cpu.fetchedData = 0b1000_0000
+        cpu.fetchedData = 0b0000_1110
         
         bit.execute(cpu: cpu)
         
@@ -35,8 +35,8 @@ import Testing
         cpu.status.remove(.o)
         cpu.status.insert(.n)
         
-        cpu.a =           0b0100_1001
-        cpu.fetchedData = 0b1100_1000
+        cpu.a =           0b1100_1001
+        cpu.fetchedData = 0b0100_1000
         
         bit.execute(cpu: cpu)
         
@@ -50,8 +50,8 @@ import Testing
         cpu.status.insert(.o)
         cpu.status.insert(.n)
         
-        cpu.a =           0b1000_1001
-        cpu.fetchedData = 0b1100_1000
+        cpu.a =           0b0000_1001
+        cpu.fetchedData = 0b1000_1000
         
         bit.execute(cpu: cpu)
         

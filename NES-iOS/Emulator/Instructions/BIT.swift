@@ -28,8 +28,8 @@ extension Instructions {
             let and = cpu.a & cpu.fetchedData
             
             cpu.status.setZ(and == 0)
-            cpu.status.setO(and & 0x40 != 0)
-            cpu.status.setN(and & 0x80 != 0)
+            cpu.status.setO(cpu.fetchedData & (1 << 6) != 0)
+            cpu.status.setN(cpu.fetchedData & (1 << 7) != 0)
             
             return nil
         }

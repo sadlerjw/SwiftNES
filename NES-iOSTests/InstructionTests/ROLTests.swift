@@ -20,7 +20,7 @@ import Testing
         cpu.status.insert(.z)
         cpu.status.insert(.n)
         cpu.fetchedData = 0b00010010
-        let expected =    0b00100100
+        let expected =    0b00100101
         
         let result = rol.execute(cpu: cpu)
         
@@ -39,7 +39,7 @@ import Testing
         cpu.status.insert(.z)
         cpu.status.remove(.n)
         cpu.fetchedData = 0b11011011
-        let expected =    0b10110111
+        let expected =    0b10110110
         
         let result = rol.execute(cpu: cpu)
         
@@ -77,7 +77,7 @@ import Testing
         cpu.status.remove(.z)
         cpu.status.insert(.n)
         cpu.fetchedData = 0b01011011
-        let expected =    0b10110110
+        let expected =    0b10110111
         
         let result = rol.execute(cpu: cpu)
         

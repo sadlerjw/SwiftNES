@@ -57,6 +57,7 @@ struct NESDebuggingView: View {
                 GridRow {
                     ValueRedactableLabeledContent("PC", value: nesState.cpu.pc.hexCode)
                     ValueRedactableLabeledContent("SP", value: nesState.cpu.stackPointer.hexCode)
+                    ValueRedactableLabeledContent("Top", value: "\(nesState.cpu.topOfStackNext.hexCode) \(nesState.cpu.topOfStack.hexCode)")
                 }
             }
             .redacted(reason: renderer.isPaused ? [] : .placeholder)

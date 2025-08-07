@@ -12,7 +12,7 @@ struct NES_iOSApp: App {
     @State var nes : NES = {
         let nes = NES()
 //        nes.addDebugProgramToRam()
-        nes.startup()
+//        nes.startup()
         return nes
     }()
     

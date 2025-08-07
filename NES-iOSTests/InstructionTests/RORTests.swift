@@ -15,12 +15,12 @@ import Testing
         return nes.cpu
     }
     
-    @Test func testNormal() async throws {
+    @Test func testCarryTrue() async throws {
         cpu.status.insert(.c)
         cpu.status.insert(.z)
         cpu.status.insert(.n)
         cpu.fetchedData = 0b00010010
-        let expected =    0b00001001
+        let expected =    0b10001001
         
         let result = ror.execute(cpu: cpu)
         
@@ -31,15 +31,15 @@ import Testing
         }
         #expect(!cpu.status.contains(.c))
         #expect(!cpu.status.contains(.z))
-        #expect(!cpu.status.contains(.n))
+        #expect(cpu.status.contains(.n))
     }
     
-    @Test func testCarryNegative() async throws {
+    @Test func testCarryFalse() async throws {
         cpu.status.remove(.c)
         cpu.status.insert(.z)
         cpu.status.remove(.n)
         cpu.fetchedData = 0b11011011
-        let expected =    0b11101101
+        let expected =    0b01101101
         
         let result = ror.execute(cpu: cpu)
         
@@ -50,7 +50,7 @@ import Testing
         }
         #expect(cpu.status.contains(.c))
         #expect(!cpu.status.contains(.z))
-        #expect(cpu.status.contains(.n))
+        #expect(!cpu.status.contains(.n))
     }
     
     @Test func testZero() async throws {

@@ -20,6 +20,9 @@ class OnDemandNESState {
         var status: CPU.StatusRegister
         var stackPointer: Byte
         
+        var topOfStack: Byte
+        var topOfStackNext: Byte
+        
         init() {
             a = 0
             x = 0
@@ -28,6 +31,9 @@ class OnDemandNESState {
             
             status = .init()
             stackPointer = 0
+            
+            topOfStack = 0
+            topOfStackNext = 0
         }
         
         init(from nes: NES) {
@@ -39,6 +45,9 @@ class OnDemandNESState {
             
             self.status = nes.cpu.status
             self.stackPointer = nes.cpu.stack.stackPointer
+            
+            self.topOfStack = nes.cpu.stack.peekByte(offset: 0)
+            self.topOfStackNext = nes.cpu.stack.peekByte(offset: 1)
         }
         
         mutating func update(from nes: NES) {
@@ -50,6 +59,9 @@ class OnDemandNESState {
             
             self.status = nes.cpu.status
             self.stackPointer = nes.cpu.stack.stackPointer
+            
+            self.topOfStack = nes.cpu.stack.peekByte(offset: 0)
+            self.topOfStackNext = nes.cpu.stack.peekByte(offset: 1)
         }
     }
     

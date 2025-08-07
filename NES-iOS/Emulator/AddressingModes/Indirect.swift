@@ -11,9 +11,23 @@ extension AddressingModes {
 
         func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
             let addressOfPointer = readAbsoluteBaseAddress(cpu: cpu)
-            let pointerAddressLow = cpu.bus.read(addressOfPointer)
-            let pointerAddressHigh = cpu.bus.read(addressOfPointer + 1)
-            let address = Address(low: pointerAddressLow, high: pointerAddressHigh)
+            let pointeeAddressLow = cpu.bus.read(addressOfPointer)
+            
+            var addressOfHighByteOfPointer: Address
+            
+            // If the low byte of the pointer is in address 0x??FF,
+            // then instead of reading the high byte from the next
+            // sequential address, which would be in a different page,
+            // there's a hardware bug where the high byte comes from
+            // the zeroth offset of the _same_ page, 0x??00.
+            if addressOfPointer & 0x00FF == 0x00FF {
+                addressOfHighByteOfPointer = addressOfPointer & 0xFF00
+            } else {
+                addressOfHighByteOfPointer = addressOfPointer + 1
+            }
+            
+            let pointeeAddressHigh = cpu.bus.read(addressOfHighByteOfPointer)
+            let address = Address(low: pointeeAddressLow, high: pointeeAddressHigh)
             
             cpu.fetchedFromAddress = address
             cpu.fetchedData = cpu.bus.read(address)
@@ -68,7 +82,7 @@ extension AddressingModes {
             let pointerBaseAddressHigh = cpu.bus.read(Address(zeroPageAddress &+ 1))
             let pointerBaseAddress = Address(low: pointerBaseAddressLow, high: pointerBaseAddressHigh)
             
-            let pointerAddress = pointerBaseAddress + Address(cpu.y)
+            let pointerAddress = pointerBaseAddress &+ Address(cpu.y)
             
             cpu.fetchedFromAddress = pointerAddress
             cpu.fetchedData = cpu.bus.read(pointerAddress)

@@ -39,7 +39,7 @@ extension Instructions {
         ]
         
         func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-            let result = cpu.fetchedData >> 1 | ((cpu.fetchedData & 0x01) << 7)
+            let result = cpu.fetchedData >> 1 | (cpu.status.contains(.c) ? 0x80 : 0)
             
             cpu.status.setC(cpu.fetchedData & 0x01 != 0)
             cpu.status.setZ(result == 0)
