@@ -92,9 +92,11 @@ class PPU {
         let patternTableSelector : Address = leftTable ? 0 : (1 << 12)
         let tileSelector : Address = Address(tile) << 4
         let bitPlaneSelector : Address = highBitPlane ? (1 << 3) : 0
-        let fineYScroll = Address(t.fineYScroll)
+        let fineYScroll = Address(v.fineYScroll)
         
-        return patternTableSelector | tileSelector | bitPlaneSelector | fineYScroll
+        let address = patternTableSelector | tileSelector | bitPlaneSelector | fineYScroll
+        
+        return address
     }
     
     /// Returns an RGBA array
@@ -178,6 +180,11 @@ class PPU {
     }
     
     func tick() {
+        if scanline == 0 && cycle == 0 && !isEvenFrame {
+            // Skip one cycle on odd frames
+            cycle = 1
+        }
+        
         if (0 ..< 240).contains(scanline) {
             // Then this is a visible scanline
 
@@ -277,7 +284,13 @@ class PPU {
                 status.remove(.spriteZeroHit)
             }
             
-            if (isEvenFrame && cycle == 340) || (!isEvenFrame && cycle == 339) {
+            if cycle > 280 && cycle < 305 { // https://www.nesdev.org/wiki/PPU_scrolling#During_dots_280_to_304_of_the_pre-render_scanline_(end_of_vblank)
+                v.fineYScroll = t.fineYScroll
+                v.nametableY = t.nametableY
+                v.coarseYScroll = t.coarseYScroll
+            }
+            
+            if cycle == 340 {
                 cycle = 0
                 scanline = 0
                 isEvenFrame.toggle()
