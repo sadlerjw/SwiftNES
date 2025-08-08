@@ -5,25 +5,28 @@
 //  Created by Jason Sadler on 2025-07-29.
 //
 
+struct AddressingModeComputedAddress {
+    var address: Address
+    var crossedPageBoundary: Bool
+    
+    init(_ address: Address, crossedPageBoundary: Bool) {
+        self.address = address
+        self.crossedPageBoundary = crossedPageBoundary
+    }
+}
+
 protocol AddressingMode {
-    static var sharedInstance : Self { get }
     var name : String { get }
     
-    func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool)
+    init()
+    
+    func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) -> Byte
     func write(_ value: Byte, cpu: borrowing CPU)
 }
 
 extension AddressingMode {
     var name : String {
         String(describing: type(of: self))
-    }
-}
-
-protocol MemoryBasedAddressingMode : AddressingMode {}
-extension MemoryBasedAddressingMode {
-    func write(_ value: Byte, cpu: borrowing CPU) {
-        guard let address = cpu.fetchedFromAddress else { fatalError("Writing via a memory-based address mode requires cpu.fetchedFromAddress")}
-        cpu.bus.write(value, at: address)
     }
 }
 

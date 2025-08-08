@@ -6,10 +6,16 @@
 //
 
 extension AddressingModes {
-    struct Indirect : MemoryBasedAddressingMode {
-        static let sharedInstance = Self.init()
+    class Indirect : MemoryBasedAddressingMode {
+        var computedAddress: AddressingModeComputedAddress?
+        var fetchedData: Byte?
+        
+        required init() {}
 
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+        func computeAddress(cpu: borrowing CPU) {
+            assert(computedAddress == nil)
+            guard computedAddress == nil else { return }
+            
             let addressOfPointer = readAbsoluteBaseAddress(cpu: cpu)
             let pointeeAddressLow = cpu.bus.read(addressOfPointer)
             
@@ -29,8 +35,7 @@ extension AddressingModes {
             let pointeeAddressHigh = cpu.bus.read(addressOfHighByteOfPointer)
             let address = Address(low: pointeeAddressLow, high: pointeeAddressHigh)
             
-            cpu.fetchedFromAddress = address
-            cpu.fetchedData = cpu.bus.read(address)
+            computedAddress = .init(address, crossedPageBoundary: false)
         }
     }
     
@@ -45,10 +50,16 @@ extension AddressingModes {
     // Long story short, we access a table of pointers which starts
     // at the zero page address, and then index within that table
     // using X, and follow that pointer.
-    struct IndirectX : MemoryBasedAddressingMode {
-        static let sharedInstance = Self.init()
+    class IndirectX : MemoryBasedAddressingMode {
+        var computedAddress: AddressingModeComputedAddress?
+        var fetchedData: Byte?
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+        required init() {}
+
+        func computeAddress(cpu: borrowing CPU) {
+            assert(computedAddress == nil)
+            guard computedAddress == nil else { return }
+            
             let zeroPageBaseAddress = cpu.bus.read(cpu.pc)
             cpu.pc += 1
             let zeroPageAddress = zeroPageBaseAddress &+ cpu.x
@@ -56,9 +67,8 @@ extension AddressingModes {
             let pointerAddressLow = cpu.bus.read(Address(zeroPageAddress))
             let pointerAddressHigh = cpu.bus.read(Address(zeroPageAddress &+ 1))
             let address = Address(low: pointerAddressLow, high: pointerAddressHigh)
-
-            cpu.fetchedFromAddress = address
-            cpu.fetchedData = cpu.bus.read(address)
+            
+            computedAddress = .init(address, crossedPageBoundary: false)
         }
     }
     
@@ -71,10 +81,16 @@ extension AddressingModes {
     //
     // Long story short, we follow a pointer in the zero page to a table
     // of values, and index within the table of values using Y.
-    struct IndirectY : MemoryBasedAddressingMode {
-        static let sharedInstance = Self.init()
+    class IndirectY : MemoryBasedAddressingMode {
+        var computedAddress: AddressingModeComputedAddress?
+        var fetchedData: Byte?
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+        required init() {}
+
+        func computeAddress(cpu: borrowing CPU) {
+            assert(computedAddress == nil)
+            guard computedAddress == nil else { return }
+            
             let zeroPageAddress = cpu.bus.read(cpu.pc)
             cpu.pc += 1
             
@@ -84,13 +100,7 @@ extension AddressingModes {
             
             let pointerAddress = pointerBaseAddress &+ Address(cpu.y)
             
-            cpu.fetchedFromAddress = pointerAddress
-            cpu.fetchedData = cpu.bus.read(pointerAddress)
-            
-            if addingCycleIfPageCrossed &&
-                pointerAddress.isOnDifferentPage(from: pointerBaseAddress) {
-                cpu.cyclesBeforeNextInstruction += 1
-            }
+            computedAddress = .init(pointerAddress, crossedPageBoundary: pointerAddress.isOnDifferentPage(from: pointerBaseAddress))
         }
     }
 }

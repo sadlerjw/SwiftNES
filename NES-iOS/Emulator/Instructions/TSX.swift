@@ -15,11 +15,13 @@ extension Instructions {
                   totalBytes: 1,
                   defaultCycles: 2,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Implied.sharedInstance),
+                  addressingMode: AddressingModes.Implied.self),
         ]
         
         @discardableResult
-        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
+        func execute(addressingMode: any AddressingMode,
+                     readAddsCycleIfPagedCrossed: Bool,
+                     cpu: borrowing CPU) -> ReadModifyWriteResult? {
             let value = cpu.stack.stackPointer
             cpu.x = value
             

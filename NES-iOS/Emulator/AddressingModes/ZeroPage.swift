@@ -6,41 +6,56 @@
 //
 
 extension AddressingModes {
-    struct ZeroPage : MemoryBasedAddressingMode {
-        static let sharedInstance = Self.init()
+    class ZeroPage : MemoryBasedAddressingMode {
+        var computedAddress: AddressingModeComputedAddress?
+        var fetchedData: Byte?
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+        required init() {}
+
+        func computeAddress(cpu: borrowing CPU) {
+            assert(computedAddress == nil)
+            guard computedAddress == nil else { return }
+            
             let zeroPageAddress = Address(cpu.bus.read(cpu.pc))
             cpu.pc += 1
             
-            cpu.fetchedFromAddress = zeroPageAddress
-            cpu.fetchedData = cpu.bus.read(zeroPageAddress)
+            computedAddress = .init(zeroPageAddress, crossedPageBoundary: false)
         }
     }
     
-    struct ZeroPageX : MemoryBasedAddressingMode {
-        static let sharedInstance = Self.init()
+    class ZeroPageX : MemoryBasedAddressingMode {
+        var computedAddress: AddressingModeComputedAddress?
+        var fetchedData: Byte?
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+        required init() {}
+        
+        func computeAddress(cpu: borrowing CPU) {
+            assert(computedAddress == nil)
+            guard computedAddress == nil else { return }
+            
             let zeroPageBaseAddress = cpu.bus.read(cpu.pc)
             cpu.pc += 1
             let address = Address(zeroPageBaseAddress &+ cpu.x)
-
-            cpu.fetchedFromAddress = address
-            cpu.fetchedData = cpu.bus.read(address)
+            
+            computedAddress = .init(address, crossedPageBoundary: false)
         }
     }
     
-    struct ZeroPageY : MemoryBasedAddressingMode {
-        static let sharedInstance = Self.init()
-
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+    class ZeroPageY : MemoryBasedAddressingMode {
+        var computedAddress: AddressingModeComputedAddress?
+        var fetchedData: Byte?
+        
+        required init() {}
+        
+        func computeAddress(cpu: borrowing CPU) {
+            assert(computedAddress == nil)
+            guard computedAddress == nil else { return }
+            
             let zeroPageBaseAddress = cpu.bus.read(cpu.pc)
             cpu.pc += 1
             let address = Address(zeroPageBaseAddress &+ cpu.y)
-
-            cpu.fetchedFromAddress = address
-            cpu.fetchedData = cpu.bus.read(address)
+            
+            computedAddress = .init(address, crossedPageBoundary: false)
         }
     }
 }

@@ -6,43 +6,51 @@
 //
 
 extension AddressingModes {
-    struct Absolute : MemoryBasedAddressingMode {
-        static let sharedInstance = Self.init()
+    class Absolute : MemoryBasedAddressingMode {
+        var computedAddress: AddressingModeComputedAddress?
+        var fetchedData: Byte?
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            let address = readAbsoluteBaseAddress(cpu: cpu)
-            cpu.fetchedFromAddress = address
-            cpu.fetchedData = cpu.bus.read(address)
+        required init() {}
+
+        func computeAddress(cpu: borrowing CPU) {
+            assert(computedAddress == nil)
+            guard computedAddress == nil else { return }
+            
+            computedAddress = .init(readAbsoluteBaseAddress(cpu: cpu), crossedPageBoundary: false)
         }
     }
     
-    struct AbsoluteX : MemoryBasedAddressingMode {
-        static let sharedInstance = Self.init()
+    class AbsoluteX : MemoryBasedAddressingMode {
+        var computedAddress: AddressingModeComputedAddress?
+        var fetchedData: Byte?
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+        required init() {}
+
+        func computeAddress(cpu: borrowing CPU) {
+            assert(computedAddress == nil)
+            guard computedAddress == nil else { return }
+            
             let baseAddress = readAbsoluteBaseAddress(cpu: cpu)
             let address = baseAddress &+ UInt16(cpu.x)
-            cpu.fetchedFromAddress = address
-            cpu.fetchedData = cpu.bus.read(address)
             
-            if addingCycleIfPageCrossed && address.isOnDifferentPage(from: baseAddress) {
-                cpu.cyclesBeforeNextInstruction += 1
-            }
+            computedAddress = .init(address, crossedPageBoundary: address.isOnDifferentPage(from: baseAddress))
         }
     }
     
-    struct AbsoluteY : MemoryBasedAddressingMode {
-        static let sharedInstance = Self.init()
+    class AbsoluteY : MemoryBasedAddressingMode {
+        var computedAddress: AddressingModeComputedAddress?
+        var fetchedData: Byte?
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+        required init() {}
+
+        func computeAddress(cpu: borrowing CPU) {
+            assert(computedAddress == nil)
+            guard computedAddress == nil else { return }
+            
             let baseAddress = readAbsoluteBaseAddress(cpu: cpu)
             let address = baseAddress &+ UInt16(cpu.y)
-            cpu.fetchedFromAddress = address
-            cpu.fetchedData = cpu.bus.read(address)
             
-            if addingCycleIfPageCrossed && address.isOnDifferentPage(from: baseAddress) {
-                cpu.cyclesBeforeNextInstruction += 1
-            }
+            computedAddress = .init(address, crossedPageBoundary: address.isOnDifferentPage(from: baseAddress))
         }
     }
 }

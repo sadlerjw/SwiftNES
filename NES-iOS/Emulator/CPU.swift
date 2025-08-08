@@ -98,7 +98,7 @@ class CPU {
     }
     
     struct Stack {
-        unowned let bus : Bus
+        unowned let bus : any BusProtocol
         let baseAddress: Address = 0x0100
         var stackPointer: Byte = 0
         
@@ -146,8 +146,6 @@ class CPU {
     var stack : Stack
     var status: StatusRegister = .i
     
-    var fetchedData: UInt8 = 0
-    var fetchedFromAddress: Address? = nil
     var cyclesBeforeNextInstruction = 0
     
     var interruptsEnabled: Bool = false
@@ -159,9 +157,9 @@ class CPU {
     
     private(set) var isHalted = false
     
-    unowned let bus : Bus
+    unowned let bus : any BusProtocol
     
-    init(bus: Bus) {
+    init(bus: any BusProtocol) {
         self.bus = bus
         self.stack = Stack(bus: bus)
     }
@@ -177,8 +175,6 @@ class CPU {
         stack.stackPointer &-= 3    // Means on startup it starts at 0x00 - 3 = 0xFD
         status.insert(.i)
         
-        fetchedData = 0
-        fetchedFromAddress = nil
         cyclesBeforeNextInstruction = 0
         
         cycle = 1
@@ -221,9 +217,6 @@ class CPU {
             return
         }
         
-        fetchedData = 0
-        fetchedFromAddress = nil
-        
         let interruptsEnabledAfterExecution : Bool? = changingInterruptsEnabledShouldBeDelayed ? status.contains(.i) : nil
         changingInterruptsEnabledShouldBeDelayed = false
         
@@ -240,11 +233,13 @@ class CPU {
         
         cyclesBeforeNextInstruction = opcodeReference.defaultCycles
         
-        let addressingMode = opcodeReference.addressingMode
-        addressingMode.fetch(cpu: self, addingCycleIfPageCrossed: opcodeReference.addsCycleIfPageCrossed)
+        var addressingMode = opcodeReference.addressingMode.init()
+        if addressingMode is MemoryBasedAddressingMode {
+            (addressingMode as! MemoryBasedAddressingMode).computeAddress(cpu: self)
+        }
         
         let instruction = opcodeReference.instruction
-        let readModifyWriteResult = instruction.execute(cpu: self)
+        let readModifyWriteResult = instruction.execute(addressingMode: addressingMode, readAddsCycleIfPagedCrossed: opcodeReference.addsCycleIfPageCrossed, cpu: self)
         
         if let interruptsEnabledAfterExecution {
             interruptsEnabled = interruptsEnabledAfterExecution
@@ -261,7 +256,10 @@ class CPU {
             // > addressing modes that operate on memory first write the
             // > original value back to memory before the modified value.
             // > This extra write can matter if targeting a hardware register.
-            addressingMode.write(fetchedData, cpu: self)
+            if let addressingMode = addressingMode as? MemoryBasedAddressingMode,
+               let originalValue = addressingMode.fetchedData {
+                addressingMode.write(originalValue, cpu: self)
+            }
             addressingMode.write(readModifyWriteResult, cpu: self)
         }
     }

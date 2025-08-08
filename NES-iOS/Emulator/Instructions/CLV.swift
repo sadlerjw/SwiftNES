@@ -14,7 +14,7 @@ extension Instructions {
                   totalBytes: 1,
                   defaultCycles: 2,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Implied.sharedInstance),
+                  addressingMode: AddressingModes.Implied.self),
         ]
         
         let set = false

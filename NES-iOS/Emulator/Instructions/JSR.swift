@@ -14,12 +14,14 @@ extension Instructions {
                   totalBytes: 3,
                   defaultCycles: 6,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Absolute.sharedInstance),
+                  addressingMode: AddressingModes.Absolute.self),
         ]
         
         @discardableResult
-        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-            guard let fetchedFromAddress = cpu.fetchedFromAddress else { fatalError() }
+        func execute(addressingMode: any AddressingMode,
+                     readAddsCycleIfPagedCrossed: Bool,
+                     cpu: borrowing CPU) -> ReadModifyWriteResult? {
+            guard let fetchedFromAddress = (addressingMode as? MemoryBasedAddressingMode)?.computedAddress?.address else { fatalError() }
 
             cpu.stack.push(cpu.pc - 1)
 

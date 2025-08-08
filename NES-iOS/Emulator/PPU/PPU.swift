@@ -13,7 +13,7 @@ class PPU {
         case sprite
     }
     
-    unowned let bus : Bus
+    unowned let bus : any BusProtocol
     unowned let cpu : CPU
     
     // Registers exposed on the main bus:
@@ -60,7 +60,7 @@ class PPU {
     private(set) var patternTableTileLow: Byte = 0
     private(set) var patternTableTileHigh: Byte = 0
     
-    init(bus: Bus, cpu: CPU) {
+    init(bus: any BusProtocol, cpu: CPU) {
         self.bus = bus
         self.cpu = cpu
         self.actualRegisters = Registers(ppu: self)

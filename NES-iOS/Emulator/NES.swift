@@ -85,8 +85,8 @@ class NES {
         static let lastAddress : UInt16 = 0x3FFF
     }
     
-    let mainBus = Bus()
-    let ppuBus = Bus()
+    let mainBus: any BusProtocol
+    let ppuBus: any BusProtocol
     
     let cpu : CPU
     let ppu : PPU
@@ -99,7 +99,10 @@ class NES {
     /// Sets up a full NES emulator stack. `startup()` should be called before use.
     /// - Parameter allRam: Set up a huge bank of RAM on the main bus instead of mapping devices.
     ///                         Should be used only for unit tests or debugging.
-    init(allRAM: Bool = false) {
+    init(allRAM: Bool = false, busType: any BusProtocol.Type = Bus.self) {
+        mainBus = busType.init()
+        ppuBus = busType.init()
+        
         if allRAM {
             let ram: any Addressable = {
 #if compiler(>=6.2)

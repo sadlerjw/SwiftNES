@@ -12,7 +12,7 @@ struct OpcodeReference {
     var defaultCycles : Int = 2
     var addsCycleIfPageCrossed : Bool = false
     var instruction : Instruction
-    var addressingMode : AddressingMode
+    var addressingMode : any AddressingMode.Type
     
     static let lookupTable : [UInt8 : OpcodeReference] = {
         var table : [UInt8 : OpcodeReference] = [:]

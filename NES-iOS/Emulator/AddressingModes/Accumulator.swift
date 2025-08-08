@@ -6,12 +6,11 @@
 //
 
 extension AddressingModes {
-    struct Accumulator : AddressingMode {
-        static let sharedInstance = Self.init()
+    class Accumulator : AddressingMode {
+        required init() {}
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            cpu.fetchedFromAddress = nil
-            cpu.fetchedData = cpu.a
+        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) -> Byte {
+            return cpu.a
         }
         
         func write(_ value: Byte, cpu: borrowing CPU) {

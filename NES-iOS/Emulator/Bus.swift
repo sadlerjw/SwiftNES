@@ -5,8 +5,18 @@
 //  Created by Jason Sadler on 2025-07-29.
 //
 
+protocol BusProtocol : AnyObject {
+    var cartridgeMapper : (any MapperAddressSpace)? { get set }
+    
+    init()
+    
+    func write(_ value: Byte, at address: Address)
+    func read(_ address: Address) -> Byte
+    func debugRead(_ address: Address) -> Byte
+    func addDevice(_ device: any Addressable, at startAddress: Address)
+}
 
-class Bus {
+class Bus : BusProtocol {
     private struct Entry {
         var start : Address
         var device : any Addressable
@@ -16,6 +26,8 @@ class Bus {
     
     private var deviceEntries = [Entry]()
     var cartridgeMapper : (any MapperAddressSpace)?
+    
+    required init() {}
     
     @inline(__always)
     private func deviceEntry(at address: Address) -> Entry? {

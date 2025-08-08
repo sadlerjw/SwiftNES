@@ -15,24 +15,25 @@ extension Instructions {
                   totalBytes: 2,
                   defaultCycles: 3,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.ZeroPage.sharedInstance),
+                  addressingMode: AddressingModes.ZeroPage.self),
             .init(opcode: 0x94,
                   totalBytes: 2,
                   defaultCycles: 4,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.ZeroPageX.sharedInstance),
+                  addressingMode: AddressingModes.ZeroPageX.self),
             .init(opcode: 0x8C,
                   totalBytes: 3,
                   defaultCycles: 4,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Absolute.sharedInstance),
+                  addressingMode: AddressingModes.Absolute.self),
         ]
         
         @discardableResult
-        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-            guard let address = cpu.fetchedFromAddress else { fatalError("Must have address to write to") }
-            cpu.bus.write(cpu.y, at: address)
-            
+        func execute(addressingMode: any AddressingMode,
+                     readAddsCycleIfPagedCrossed: Bool,
+                     cpu: borrowing CPU) -> ReadModifyWriteResult? {
+            addressingMode.write(cpu.y, cpu: cpu)
+
             return nil
         }
     }

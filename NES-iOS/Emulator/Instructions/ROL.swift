@@ -14,34 +14,38 @@ extension Instructions {
                   totalBytes: 1,
                   defaultCycles: 2,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Accumulator.sharedInstance),
+                  addressingMode: AddressingModes.Accumulator.self),
             .init(opcode: 0x26,
                   totalBytes: 2,
                   defaultCycles: 5,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.ZeroPage.sharedInstance),
+                  addressingMode: AddressingModes.ZeroPage.self),
             .init(opcode: 0x36,
                   totalBytes: 2,
                   defaultCycles: 6,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.ZeroPageX.sharedInstance),
+                  addressingMode: AddressingModes.ZeroPageX.self),
             .init(opcode: 0x2E,
                   totalBytes: 3,
                   defaultCycles: 6,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Absolute.sharedInstance),
+                  addressingMode: AddressingModes.Absolute.self),
             .init(opcode: 0x3E,
                   totalBytes: 3,
                   defaultCycles: 7,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.AbsoluteX.sharedInstance),
+                  addressingMode: AddressingModes.AbsoluteX.self),
             
         ]
         
-        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-            let result = cpu.fetchedData << 1 | (cpu.status.contains(.c) ? 1 : 0)
+        func execute(addressingMode: any AddressingMode,
+                     readAddsCycleIfPagedCrossed: Bool,
+                     cpu: borrowing CPU) -> ReadModifyWriteResult? {
+            let fetchedData = addressingMode.fetch(cpu: cpu, addingCycleIfPageCrossed: readAddsCycleIfPagedCrossed)
             
-            cpu.status.setC(cpu.fetchedData & 0x80 != 0)
+            let result = fetchedData << 1 | (cpu.status.contains(.c) ? 1 : 0)
+            
+            cpu.status.setC(fetchedData & 0x80 != 0)
             cpu.status.setZ(result == 0)
             cpu.status.setN(result & 0x80 != 0)
             

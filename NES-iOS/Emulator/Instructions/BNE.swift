@@ -15,7 +15,7 @@ extension Instructions {
                   defaultCycles: 2,
                   addsCycleIfPageCrossed: false, // technically true - but since it's a relative signed 8-bit integer, we'll deal with it manually in `execute`
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Immediate.sharedInstance),
+                  addressingMode: AddressingModes.Immediate.self),
         ]
         
         func willBranch(cpu: CPU) -> Bool {

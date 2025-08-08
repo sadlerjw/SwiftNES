@@ -14,17 +14,17 @@ extension Instructions {
                   totalBytes: 2,
                   defaultCycles: 2,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Immediate.sharedInstance),
+                  addressingMode: AddressingModes.Immediate.self),
             .init(opcode: 0xC4,
                   totalBytes: 2,
                   defaultCycles: 3,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.ZeroPage.sharedInstance),
+                  addressingMode: AddressingModes.ZeroPage.self),
             .init(opcode: 0xCC,
                   totalBytes: 3,
                   defaultCycles: 4,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Absolute.sharedInstance),
+                  addressingMode: AddressingModes.Absolute.self),
         ]
         
         func firstComparisonValue(cpu: CPU) -> Byte {

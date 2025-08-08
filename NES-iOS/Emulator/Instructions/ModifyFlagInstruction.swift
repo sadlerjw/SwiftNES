@@ -14,7 +14,9 @@ protocol ModifyFlagInstruction: Instruction {
 
 extension ModifyFlagInstruction {
     @discardableResult
-    func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
+    func execute(addressingMode: any AddressingMode,
+                 readAddsCycleIfPagedCrossed: Bool,
+                 cpu: borrowing CPU) -> ReadModifyWriteResult? {
         if `set` {
             cpu.status.insert(flag)
         } else {

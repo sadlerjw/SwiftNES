@@ -7,12 +7,13 @@
 
 protocol Instruction {
     typealias ReadModifyWriteResult = Byte
-    
     static var sharedInstance : Self { get }
     static var opcodeReferences : [OpcodeReference] { get }
     var name : String { get }
     
-    func execute(cpu: borrowing CPU) -> ReadModifyWriteResult?
+    func execute(addressingMode: AddressingMode,
+                 readAddsCycleIfPagedCrossed: Bool,
+                 cpu: borrowing CPU) -> ReadModifyWriteResult?
 }
 
 extension Instruction {

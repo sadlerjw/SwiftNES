@@ -14,11 +14,13 @@ extension Instructions {
                   totalBytes: 1,
                   defaultCycles: 6,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Implied.sharedInstance),
+                  addressingMode: AddressingModes.Implied.self),
         ]
         
         @discardableResult
-        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
+        func execute(addressingMode: any AddressingMode,
+                     readAddsCycleIfPagedCrossed: Bool,
+                     cpu: borrowing CPU) -> ReadModifyWriteResult? {
             let newPC = cpu.stack.popAddress() + 1
             cpu.pc = newPC
 

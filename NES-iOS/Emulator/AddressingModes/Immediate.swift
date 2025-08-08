@@ -6,12 +6,17 @@
 //
 
 extension AddressingModes {
-    struct Immediate : AddressingMode {
-        static let sharedInstance = Self.init()
+    class Immediate : MemoryBasedAddressingMode {
+        var computedAddress: AddressingModeComputedAddress?
+        var fetchedData: Byte?
         
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
-            cpu.fetchedFromAddress = cpu.pc
-            cpu.fetchedData = cpu.bus.read(cpu.pc)
+        required init() {}
+
+        func computeAddress(cpu: borrowing CPU) {
+            assert(computedAddress == nil)
+            guard computedAddress == nil else { return }
+            
+            computedAddress = .init(cpu.pc, crossedPageBoundary: false)
             cpu.pc += 1
         }
         

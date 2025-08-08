@@ -11,12 +11,16 @@ protocol CompareInstruction : Instruction {
 
 extension CompareInstruction {
     @discardableResult
-    func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-        let value = firstComparisonValue(cpu: cpu)
-        let result = value &- cpu.fetchedData
+    func execute(addressingMode: any AddressingMode,
+                 readAddsCycleIfPagedCrossed: Bool,
+                 cpu: borrowing CPU) -> ReadModifyWriteResult? {
+        let fetchedData = addressingMode.fetch(cpu: cpu, addingCycleIfPageCrossed: readAddsCycleIfPagedCrossed)
         
-        cpu.status.setC(value >= cpu.fetchedData)
-        cpu.status.setZ(value == cpu.fetchedData)
+        let value = firstComparisonValue(cpu: cpu)
+        let result = value &- fetchedData
+        
+        cpu.status.setC(value >= fetchedData)
+        cpu.status.setZ(value == fetchedData)
         cpu.status.setN(result & 0x80 != 0)
         
         return nil

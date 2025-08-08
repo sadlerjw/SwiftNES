@@ -11,10 +11,14 @@ protocol BranchInstruction: Instruction {
 
 extension BranchInstruction {
     @discardableResult
-    func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
+    func execute(addressingMode: any AddressingMode,
+                 readAddsCycleIfPagedCrossed: Bool,
+                 cpu: borrowing CPU) -> ReadModifyWriteResult? {
+        let fetchedData = addressingMode.fetch(cpu: cpu, addingCycleIfPageCrossed: readAddsCycleIfPagedCrossed)
+        
         if willBranch(cpu: cpu) {
             cpu.cyclesBeforeNextInstruction += 1
-            let offset = Int8(bitPattern: cpu.fetchedData)
+            let offset = Int8(bitPattern: fetchedData)
             let newPC : UInt16 = UInt16(Int32(cpu.pc) + Int32(offset))
             
             let pageCrossed : Bool = (cpu.pc & 0xFF00) != (newPC & 0xFF00)

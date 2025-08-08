@@ -15,45 +15,46 @@ extension Instructions {
                   totalBytes: 2,
                   defaultCycles: 3,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.ZeroPage.sharedInstance),
+                  addressingMode: AddressingModes.ZeroPage.self),
             .init(opcode: 0x95,
                   totalBytes: 2,
                   defaultCycles: 4,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.ZeroPageX.sharedInstance),
+                  addressingMode: AddressingModes.ZeroPageX.self),
             .init(opcode: 0x8D,
                   totalBytes: 3,
                   defaultCycles: 4,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Absolute.sharedInstance),
+                  addressingMode: AddressingModes.Absolute.self),
             .init(opcode: 0x9D,
                   totalBytes: 3,
                   defaultCycles: 5,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.AbsoluteX.sharedInstance),
+                  addressingMode: AddressingModes.AbsoluteX.self),
             .init(opcode: 0x99,
                   totalBytes: 3,
                   defaultCycles: 5,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.AbsoluteY.sharedInstance),
+                  addressingMode: AddressingModes.AbsoluteY.self),
             .init(opcode: 0x81,
                   totalBytes: 2,
                   defaultCycles: 6,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.IndirectX.sharedInstance),
+                  addressingMode: AddressingModes.IndirectX.self),
             .init(opcode: 0x91,
                   totalBytes: 2,
                   defaultCycles: 6,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.IndirectY.sharedInstance),
+                  addressingMode: AddressingModes.IndirectY.self),
             
         ]
         
         @discardableResult
-        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-            guard let address = cpu.fetchedFromAddress else { fatalError("Must have address to write to") }
-            cpu.bus.write(cpu.a, at: address)
-            
+        func execute(addressingMode: any AddressingMode,
+                     readAddsCycleIfPagedCrossed: Bool,
+                     cpu: borrowing CPU) -> ReadModifyWriteResult? {
+            addressingMode.write(cpu.a, cpu: cpu)
+
             return nil
         }
     }

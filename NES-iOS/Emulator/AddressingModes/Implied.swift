@@ -6,13 +6,12 @@
 //
 
 extension AddressingModes {
-    struct Implied : AddressingMode {
-        static let sharedInstance = Self.init()
+    class Implied : AddressingMode {
+        required init() {}
         
-        
-        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) {
+        func fetch(cpu: borrowing CPU, addingCycleIfPageCrossed: Bool) -> Byte {
             // No-op!
-            cpu.fetchedFromAddress = nil
+            return 0
         }
         
         func write(_ value: Byte, cpu: borrowing CPU) {

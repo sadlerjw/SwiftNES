@@ -14,36 +14,40 @@ extension Instructions {
                   totalBytes: 2,
                   defaultCycles: 2,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Immediate.sharedInstance),
+                  addressingMode: AddressingModes.Immediate.self),
             .init(opcode: 0xA4,
                   totalBytes: 2,
                   defaultCycles: 3,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.ZeroPage.sharedInstance),
+                  addressingMode: AddressingModes.ZeroPage.self),
             .init(opcode: 0xB4,
                   totalBytes: 2,
                   defaultCycles: 4,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.ZeroPageX.sharedInstance),
+                  addressingMode: AddressingModes.ZeroPageX.self),
             .init(opcode: 0xAC,
                   totalBytes: 3,
                   defaultCycles: 4,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.Absolute.sharedInstance),
+                  addressingMode: AddressingModes.Absolute.self),
             .init(opcode: 0xBC,
                   totalBytes: 3,
                   defaultCycles: 4,
                   addsCycleIfPageCrossed: true,
                   instruction: Self.sharedInstance,
-                  addressingMode: AddressingModes.AbsoluteX.sharedInstance),
+                  addressingMode: AddressingModes.AbsoluteX.self),
         ]
         
         @discardableResult
-        func execute(cpu: borrowing CPU) -> ReadModifyWriteResult? {
-            cpu.y = cpu.fetchedData
+        func execute(addressingMode: any AddressingMode,
+                     readAddsCycleIfPagedCrossed: Bool,
+                     cpu: borrowing CPU) -> ReadModifyWriteResult? {
+            let fetchedData = addressingMode.fetch(cpu: cpu, addingCycleIfPageCrossed: readAddsCycleIfPagedCrossed)
             
-            cpu.status.setZ(cpu.fetchedData == 0)
-            cpu.status.setN(cpu.fetchedData >> 7 == 1)
+            cpu.y = fetchedData
+            
+            cpu.status.setZ(fetchedData == 0)
+            cpu.status.setN(fetchedData >> 7 == 1)
             
             return nil
         }
