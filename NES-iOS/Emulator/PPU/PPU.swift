@@ -89,7 +89,7 @@ class PPU {
     }
     
     private func patternTableAddress(leftTable: Bool, tile: Byte, highBitPlane: Bool) -> Address {
-        let patternTableSelector : Address = leftTable ? (1 << 12) : 0
+        let patternTableSelector : Address = leftTable ? 0 : (1 << 12)
         let tileSelector : Address = Address(tile) << 4
         let bitPlaneSelector : Address = highBitPlane ? (1 << 3) : 0
         let fineYScroll = Address(t.fineYScroll)
