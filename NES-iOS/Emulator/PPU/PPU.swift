@@ -60,6 +60,10 @@ class PPU {
     private(set) var patternTableTileLow: Byte = 0
     private(set) var patternTableTileHigh: Byte = 0
     
+    var isRenderingEnabled : Bool {
+        return mask.contains(.renderBackground) || mask.contains(.renderSprites)
+    }
+    
     init(bus: any BusProtocol, cpu: CPU) {
         self.bus = bus
         self.cpu = cpu
@@ -129,8 +133,27 @@ class PPU {
     }
     
     func renderPixel() {
-        let pattern = renderingShiftRegisters.pattern(fineX: x)
-        let paletteIndex = renderingShiftRegisters.palette(fineX: x)
+        let pattern: Byte
+        let paletteIndex: Byte
+        
+        if isRenderingEnabled {
+            pattern = renderingShiftRegisters.pattern(fineX: x)
+            paletteIndex = renderingShiftRegisters.palette(fineX: x)
+        } else {
+            if v.rawValue.reg >= NES.PPUBusAddresses.paletteRAMIndexesStart {
+                // When v is interpreted as an address and it points into palette RAM,
+                // draw that colour.
+                // Since there are 4 colours per palette, we choose the palette by dividing
+                // the offset by 4 (rounding down) and index within the palette by pattern,
+                // which must be the remainder.
+                let paletteAddress = Byte(v.rawValue.reg - NES.PPUBusAddresses.paletteRAMIndexesStart)
+                pattern = paletteAddress % 4
+                paletteIndex = paletteAddress / 4
+            } else {
+                pattern = 0
+                paletteIndex = 0
+            }
+        }
         
         let rgba = getColorFromPalette(layer: .background, palette: paletteIndex, value: pattern)
         
@@ -180,7 +203,7 @@ class PPU {
     }
     
     func tick() {
-        if scanline == 0 && cycle == 0 && !isEvenFrame {
+        if scanline == 0 && cycle == 0 && !isEvenFrame && isRenderingEnabled {
             // Skip one cycle on odd frames
             cycle = 1
         }
@@ -191,47 +214,49 @@ class PPU {
             if (1 ... 256).contains(cycle) || (321 ... 336).contains(cycle) {
                 renderingShiftRegisters.shift()
                 
-                switch cycle % 8 {
-                case 1:
-                    // Loading the shift registers happens starting on cycle 9
-                    if cycle != 1 && cycle != 321 {
-                        loadShiftRegiters()
+                if isRenderingEnabled {
+                    switch cycle % 8 {
+                    case 1:
+                        // Loading the shift registers happens starting on cycle 9
+                        if cycle != 1 && cycle != 321 {
+                            loadShiftRegiters()
+                        }
+                    case 2:
+                        // fetch from nametable
+                        let nametableAddress = NES.PPUBusAddresses.nametable0Start + v.nametableAddressOffset
+                        nametableByte = bus.read(nametableAddress)
+                    case 4:
+                        let attributeAddress = NES.PPUBusAddresses.attributeTable0Start + v.attributeAddress
+                        attributeTableByte = bus.read(attributeAddress)
+                    case 6:
+                        patternTableTileLow = bus.read(patternTableAddress(leftTable: !control.contains(.backgroundPatternTableAddress),
+                                                                           tile: nametableByte,
+                                                                           highBitPlane: false))
+                    case 0:
+                        patternTableTileHigh = bus.read(patternTableAddress(leftTable: !control.contains(.backgroundPatternTableAddress),
+                                                                            tile: nametableByte,
+                                                                            highBitPlane: true))
+                        
+                        v.incrementCoarseX()
+                    default:
+                        break
                     }
-                case 2:
-                    // fetch from nametable
-                    let nametableAddress = NES.PPUBusAddresses.nametable0Start + v.nametableAddressOffset
-                    nametableByte = bus.read(nametableAddress)
-                case 4:
-                    let attributeAddress = NES.PPUBusAddresses.attributeTable0Start + v.attributeAddress
-                    attributeTableByte = bus.read(attributeAddress)
-                case 6:
-                    patternTableTileLow = bus.read(patternTableAddress(leftTable: !control.contains(.backgroundPatternTableAddress),
-                                                                       tile: nametableByte,
-                                                                       highBitPlane: false))
-                case 0:
-                    patternTableTileHigh = bus.read(patternTableAddress(leftTable: !control.contains(.backgroundPatternTableAddress),
-                                                                       tile: nametableByte,
-                                                                       highBitPlane: true))
-                    
-                    v.incrementCoarseX()
-                default:
-                    break
                 }
                 
                 if (1 ... 256).contains(cycle) {
                     renderPixel()
                     
-                    if cycle >= 2 {
+                    if cycle >= 2 && isRenderingEnabled {
                         // TODO: sprite 0 hit detection
                     }
                 }
             }
             
-            if cycle == 257 || cycle == 337 {
+            if isRenderingEnabled && (cycle == 257 || cycle == 337) {
                 loadShiftRegiters()
             }
             
-            if (257 ... 320).contains(cycle) {
+            if isRenderingEnabled && (257 ... 320).contains(cycle) {
                 // TODO: Load tile data for sprites for next scanline
                 if cycle % 8 == 2 {
                     // unused fetch from nametable
@@ -245,12 +270,12 @@ class PPU {
                 }
             }
             
-            if cycle == 338 {
+            if isRenderingEnabled && cycle == 338 {
                 // unused fetch from nametable
                 let nametableAddress = NES.PPUBusAddresses.nametable0Start + v.nametableAddressOffset
                 nametableByte = bus.read(nametableAddress)
             }
-            if cycle == 340 {
+            if isRenderingEnabled && cycle == 340 {
                 // ignored fetch from nametable
                 let nametableAddress = NES.PPUBusAddresses.nametable0Start + v.nametableAddressOffset
                 _ = bus.read(nametableAddress)
@@ -268,9 +293,9 @@ class PPU {
             }
         }
         
-        if cycle == 256 {
+        if cycle == 256 && isRenderingEnabled {
             v.incrementFineY()
-        } else if cycle == 257 {
+        } else if cycle == 257 && isRenderingEnabled {
             v.coarseXScroll = t.coarseXScroll
             v.nametableX = t.nametableX
         }
@@ -284,7 +309,8 @@ class PPU {
                 status.remove(.spriteZeroHit)
             }
             
-            if cycle > 280 && cycle < 305 { // https://www.nesdev.org/wiki/PPU_scrolling#During_dots_280_to_304_of_the_pre-render_scanline_(end_of_vblank)
+            if cycle > 280 && cycle < 305 && isRenderingEnabled {
+                // https://www.nesdev.org/wiki/PPU_scrolling#During_dots_280_to_304_of_the_pre-render_scanline_(end_of_vblank)
                 v.fineYScroll = t.fineYScroll
                 v.nametableY = t.nametableY
                 v.coarseYScroll = t.coarseYScroll
