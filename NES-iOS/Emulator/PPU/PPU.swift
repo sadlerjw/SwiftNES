@@ -213,7 +213,7 @@ class PPU {
             // Then this is a visible scanline
 
             if (1 ... 256).contains(cycle) || (321 ... 336).contains(cycle) {
-                renderingShiftRegisters.shift()
+                defer { renderingShiftRegisters.shift() }
                 
                 if isRenderingEnabled {
                     switch cycle % 8 {
