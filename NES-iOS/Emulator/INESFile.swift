@@ -15,8 +15,8 @@ struct INESFile {
     }
     
     enum Mirroring : Int {
-        case vertical = 0
-        case horizontal = 1
+        case horizontal = 0
+        case vertical = 1
     }
     
     struct Header {

@@ -89,6 +89,7 @@ class NES {
     let ppuBus: any BusProtocol
     
     let controllers: Controllers
+    let vram: VRAM
     
     let cpu : CPU
     let ppu : PPU
@@ -104,8 +105,12 @@ class NES {
     init(allRAM: Bool = false, busType: any BusProtocol.Type = Bus.self) {
         mainBus = busType.init()
         ppuBus = busType.init()
+        
         let controllers = Controllers()
         self.controllers = controllers
+        
+        let vram = VRAM()
+        self.vram = vram
         
         if allRAM {
             let ram: any Addressable = {
@@ -211,17 +216,6 @@ class NES {
             let cartridgePPUMap = DummyAddressable(length: 0x2000)
             ppuBus.addDevice(cartridgePPUMap, at: PPUBusAddresses.cartridgeStart)
             
-            let vram : any Addressable = {
-#if compiler(>=6.2)
-                if #available(iOS 26.0, *) {
-                    return RAM_26<0x1000>()
-                } else {
-                    return RAM_legacy(length: 0x1000)
-                }
-#else
-                return RAM_legacy(length: 0x1000)
-#endif
-            }()
             let mirroredVRAM = ClosureAddressable(length: 0x0F00,
                                                   name: "Mirrored VRAM") { value, offset in
                 vram.write(value, at: offset)
@@ -316,6 +310,8 @@ class NES {
         let mapper = mapperType.init(iNESFile: rom)
         mainBus.cartridgeMapper = mapper.cpuAddressSpace
         ppuBus.cartridgeMapper = mapper.ppuAddressSpace
+        
+        vram.mirroring = rom.header.flags6.nametableMirroring
         
         reset()
     }
