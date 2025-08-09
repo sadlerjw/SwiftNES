@@ -22,7 +22,7 @@ struct NESPlayerView: View {
                 LabeledContent("FPS", value: "\(renderer.fps)")
                     .frame(idealWidth: 70)
             }
-            ControllerView(viewableController: controller1)
+            ControllerView(controller: controller1)
                 .background(.gray)
         }
         .task {

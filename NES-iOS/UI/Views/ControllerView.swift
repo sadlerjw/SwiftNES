@@ -26,22 +26,22 @@ class ViewableController : Controller {
 
 struct ControllerView: View {
     @GestureState private var touchLocation: CGPoint = .zero
-    var viewableController: ViewableController
+    var controller: ViewableController
     
     var body: some View {
         HStack {
-            DPadView()
+            DPadView(touchLocation: touchLocation, controller: controller)
             ControllerButtonView(text: "Select", touchLocation: touchLocation) { isTouching in
-                viewableController.set(button: .select, pressed: isTouching)
+                controller.set(button: .select, pressed: isTouching)
             }
             ControllerButtonView(text: "Start", touchLocation: touchLocation){ isTouching in
-                viewableController.set(button: .start, pressed: isTouching)
+                controller.set(button: .start, pressed: isTouching)
             }
             ControllerButtonView(text: "A", touchLocation: touchLocation){ isTouching in
-                viewableController.set(button: .a, pressed: isTouching)
+                controller.set(button: .a, pressed: isTouching)
             }
             ControllerButtonView(text: "B", touchLocation: touchLocation){ isTouching in
-                viewableController.set(button: .b, pressed: isTouching)
+                controller.set(button: .b, pressed: isTouching)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -53,8 +53,45 @@ struct ControllerView: View {
 }
 
 struct DPadView: View {
+    var touchLocation: CGPoint
+    var controller: ViewableController
+    
     var body: some View {
-        Text("DPad")
+        Grid(horizontalSpacing: 0, verticalSpacing: 0) {
+            GridRow {
+                ControllerButtonView(text: "UL", touchLocation: touchLocation) { isTouching in
+                    controller.set(button: [.up, .left], pressed: isTouching)
+                }
+                ControllerButtonView(text: "U", touchLocation: touchLocation) { isTouching in
+                    controller.set(button: .up, pressed: isTouching)
+                }
+                ControllerButtonView(text: "UR", touchLocation: touchLocation) { isTouching in
+                    controller.set(button: [.up, .right], pressed: isTouching)
+                }
+            }
+            GridRow {
+                ControllerButtonView(text: "L", touchLocation: touchLocation) { isTouching in
+                    controller.set(button: .left, pressed: isTouching)
+                }
+                Rectangle()
+                    .frame(width: 48, height: 48)
+                    .foregroundStyle(.clear)
+                ControllerButtonView(text: "R", touchLocation: touchLocation) { isTouching in
+                    controller.set(button: .right, pressed: isTouching)
+                }
+            }
+            GridRow {
+                ControllerButtonView(text: "DL", touchLocation: touchLocation) { isTouching in
+                    controller.set(button: [.down, .left], pressed: isTouching)
+                }
+                ControllerButtonView(text: "D", touchLocation: touchLocation) { isTouching in
+                    controller.set(button: .down, pressed: isTouching)
+                }
+                ControllerButtonView(text: "DR", touchLocation: touchLocation) { isTouching in
+                    controller.set(button: [.down, .right], pressed: isTouching)
+                }
+            }
+        }
     }
 }
 
@@ -67,7 +104,7 @@ struct ControllerButtonView: View {
     
     var body: some View {
         Text(text)
-            .frame(width: 64, height: 64)
+            .frame(width: 48, height: 48)
             .background(isTouchingInside ? .pink : .purple)
             .background(GeometryReader { proxy in
                 Rectangle()
@@ -83,5 +120,5 @@ struct ControllerButtonView: View {
 }
 
 #Preview {
-    ControllerView(viewableController: .init())
+    ControllerView(controller: .init())
 }
