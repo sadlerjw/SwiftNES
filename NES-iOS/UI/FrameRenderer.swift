@@ -53,6 +53,10 @@ class FrameRenderer {
                 fatalError("Unexpected error: \(error)")
             }
         }
+        renderCurrentFrame()
+    }
+    
+    func renderCurrentFrame() {
         image = image(from: nes.ppu.previousFrame)
     }
     

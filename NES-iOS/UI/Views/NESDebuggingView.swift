@@ -7,33 +7,14 @@
 
 import SwiftUI
 
-struct NESImageView : View {
-    var image: UIImage?
-    
-    var body: some View {
-        VStack {
-            if let image {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-            } else {
-                Rectangle()
-                    .fill(Color.black)
-                    .aspectRatio(4.0 / 3.0, contentMode: .fit)
-            }
-        }
-    }
-}
-
 struct NESDebuggingView: View {
     var nes : NES
-    
-    @State var isSelectingROM = false
+
     @State var isAddingBreakpoint = false
     @State var newBreakpointAddress = ""
-    @State var image: UIImage?
-    @State var renderer = FrameRenderer()
     @State var nesState = OnDemandNESState()
+    
+    var renderer: FrameRenderer
     
     @ViewBuilder
     var cpuSection: some View {
@@ -108,11 +89,6 @@ struct NESDebuggingView: View {
 
     var body: some View {
         VStack {
-            NESImageView(image: renderer.isPaused ? image ?? renderer.image : renderer.image)
-            if !renderer.isPaused {
-                LabeledContent("FPS", value: "\(renderer.fps)")
-                    .frame(idealWidth: 70)
-            }
             cpuSection
             ScrollViewReader { proxy in
                 List {
@@ -126,12 +102,8 @@ struct NESDebuggingView: View {
         }
         .background(Color(uiColor: UIColor.systemGroupedBackground))
         .task {
-            renderer.start(with: nes)
             nesState = .init(nes: nes)
         }
-        .popover(isPresented: $isSelectingROM, content: {
-            RomSelector(nes: nes)
-        })
         .alert("Add Breakpoint", isPresented: $isAddingBreakpoint, actions: {
             TextField("Address", text: $newBreakpointAddress)
             Button("Add") {
@@ -147,17 +119,12 @@ struct NESDebuggingView: View {
                 newBreakpointAddress = ""
             }
         })
-        .onChange(of: isSelectingROM, { oldValue, newValue in
-            if oldValue && !newValue {
-                nesState.update(from: nes)
-            }
-        })
         .onChange(of: renderer.isPaused, { oldValue, newValue in
             if !oldValue && newValue {
                 nesState.update(from: nes)
             }
         })
-        .navigationTitle("NES Emulator")
+        .navigationTitle("Debugger")
         .toolbar {
             ToolbarItem(placement: .bottomBar) {
                 Button("Reset", systemImage: "arrow.counterclockwise") {
@@ -175,9 +142,6 @@ struct NESDebuggingView: View {
                 } else {
                     Button("Pause", systemImage: "pause") {
                         renderer.isPaused = true
-                        if let image = renderer.image {
-                            self.image = image
-                        }
                         nesState.update(from: nes)
                     }
                 }
@@ -194,14 +158,8 @@ struct NESDebuggingView: View {
                 Button("Step to next frame", systemImage: "arrow.forward.to.line") {
                     renderer.isPaused = true
                     try? nes.stepFrame()
-                    image = renderer.image(from: nes.ppu.previousFrame)
+                    renderer.renderCurrentFrame()
                     nesState.update(from: nes)
-                }
-            }
-            ToolbarItem(placement: .bottomBar) {
-                Button("Load ROM", systemImage: "arrow.down.square.fill") {
-                    renderer.isPaused = true
-                    isSelectingROM = true
                 }
             }
             ToolbarItem(placement: .bottomBar) {
@@ -241,5 +199,5 @@ struct CPUStatusView : View {
 
 
 #Preview {
-    NESDebuggingView(nes: NES())
+    NESDebuggingView(nes: NES(), renderer: FrameRenderer())
 }

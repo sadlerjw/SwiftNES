@@ -23,6 +23,9 @@ struct RomSelector: View {
             Button(rom.url.lastPathComponent) {
                 do {
                     try nes.loadCartridge(data: Data(contentsOf: rom.url))
+//                    if rom.url.lastPathComponent == "nestest.nes" {
+//                        nes.setPCForHeadlessTestROM()
+//                    }
                     dismiss()
                 } catch {
                     // TODO: error handling

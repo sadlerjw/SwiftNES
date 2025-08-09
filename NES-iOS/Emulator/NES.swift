@@ -88,6 +88,8 @@ class NES {
     let mainBus: any BusProtocol
     let ppuBus: any BusProtocol
     
+    let controllers: Controllers
+    
     let cpu : CPU
     let ppu : PPU
     let oamDMA : OAMDMA
@@ -102,6 +104,8 @@ class NES {
     init(allRAM: Bool = false, busType: any BusProtocol.Type = Bus.self) {
         mainBus = busType.init()
         ppuBus = busType.init()
+        let controllers = Controllers()
+        self.controllers = controllers
         
         if allRAM {
             let ram: any Addressable = {
@@ -172,8 +176,7 @@ class NES {
                     // TODO: APU enable/disable sound channels https://www.nesdev.org/wiki/APU#Status_($4015)
                     break
                 case 1:
-                    // TODO: output to both controllers https://www.nesdev.org/wiki/Input_devices#Usage_of_port_pins_by_hardware_type
-                    break
+                    controllers.write(value, at: 0)
                 case 2:
                     // TODO: APU frame counter control https://www.nesdev.org/wiki/APU_Frame_Counter
                     break
@@ -186,11 +189,9 @@ class NES {
                     // TODO: APU interrupt and sound channel status https://www.nesdev.org/wiki/APU#Status_($4015)
                     return 0
                 case 1:
-                    // TODO: read controller 1
-                    return 0
+                    return controllers.read(at: 0)
                 case 2:
-                    // TODO: read controller 2
-                    return 0
+                    return controllers.read(at: 1)
                 default:
                     fatalError("Received impossible offset \(offset) in Joystick/IRQ/FrameCounter addressable")
                 }
@@ -299,6 +300,11 @@ class NES {
     func reset() {
         cpu.reset()
         ppu.reset()
+    }
+    
+    func attachControllers(controller1: Controller?, controller2: Controller?) {
+        controllers.controller1 = controller1
+        controllers.controller2 = controller2
     }
     
     func loadCartridge(data: Data) throws {
