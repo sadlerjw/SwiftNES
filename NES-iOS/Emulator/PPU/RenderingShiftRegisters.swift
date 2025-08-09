@@ -35,7 +35,7 @@ extension PPU {
             guard fineX < 8 else {
                 fatalError("FineX should never be greater than 7.")
             }
-            let selector : UInt16 = 1 << (fineX + 8)
+            let selector : UInt16 = 0x8000 >> fineX
             
             let highResult : UInt8 = (high & selector) > 0 ? 1 : 0
             let lowResult : UInt8 = (low & selector) > 0 ? 1 : 0

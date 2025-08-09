@@ -140,13 +140,14 @@ class PPU {
             pattern = renderingShiftRegisters.pattern(fineX: x)
             paletteIndex = renderingShiftRegisters.palette(fineX: x)
         } else {
-            if v.rawValue.reg >= NES.PPUBusAddresses.paletteRAMIndexesStart {
+            if v.rawValue.reg >= NES.PPUBusAddresses.paletteRAMIndexesStart &&
+                v.rawValue.reg < NES.PPUBusAddresses.paletteRAMIndexesStart{
                 // When v is interpreted as an address and it points into palette RAM,
                 // draw that colour.
                 // Since there are 4 colours per palette, we choose the palette by dividing
                 // the offset by 4 (rounding down) and index within the palette by pattern,
                 // which must be the remainder.
-                let paletteAddress = Byte(v.rawValue.reg - NES.PPUBusAddresses.paletteRAMIndexesStart)
+                let paletteAddress = Byte(v.rawValue.reg - NES.PPUBusAddresses.paletteRAMIndexesStart) % 0x20   // Palettes are mirrored out past their length of 0x20
                 pattern = paletteAddress % 4
                 paletteIndex = paletteAddress / 4
             } else {

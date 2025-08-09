@@ -75,10 +75,10 @@ extension PPU {
                 ppu.oamAddress &+= 1
             case 5: // PPUSCROLL
                 if !ppu.w {
-                    ppu.t.coarseXScroll = value & 0xF8  // The high 5 bits go in t
+                    ppu.t.coarseXScroll = (value & 0xF8) >> 3  // The high 5 bits go in t
                     ppu.x = value & 0x7                 // The low 3 bits go in x
                 } else {
-                    ppu.t.coarseYScroll = value & 0xF8  // The high 5 bits go in t
+                    ppu.t.coarseYScroll = (value & 0xF8) >> 3  // The high 5 bits go in t
                     ppu.t.fineYScroll = value & 0x7     // The low 3 bits go elsewhere in t
                 }
                 ppu.w.toggle()
