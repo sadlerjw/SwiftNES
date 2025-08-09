@@ -53,8 +53,7 @@ class Bus : BusProtocol {
     
     @inline(__always)
     func read(_ address: Address) -> Byte {
-        if let cartridgeMapper,
-           let value = cartridgeMapper.read(at: address) {
+        if let value = cartridgeMapper?.read(at: address) {
             return value
         }
         

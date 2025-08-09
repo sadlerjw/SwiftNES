@@ -90,6 +90,7 @@ class NES {
     
     let controllers: Controllers
     let vram: VRAM
+    let paletteRAM: RAM_legacy
     
     let cpu : CPU
     let ppu : PPU
@@ -111,6 +112,9 @@ class NES {
         
         let vram = VRAM()
         self.vram = vram
+        
+        let paletteRAM = RAM_legacy(length: 0x0020)
+        self.paletteRAM = paletteRAM
         
         if allRAM {
             let ram: any Addressable = {
@@ -226,24 +230,12 @@ class NES {
             ppuBus.addDevice(vram, at: 0x2000)
             ppuBus.addDevice(mirroredVRAM, at: 0x3000)
 
-            
-            let paletteRam: any Addressable = {
-#if compiler(>=6.2)
-                if #available(iOS 26.0, *) {
-                    return RAM_26<0x0020>()
-                } else {
-                    return RAM_legacy(length: 0x0020)
-                }
-#else
-                return RAM_legacy(length: 0x0020)
-#endif
-            }()
-            let paletteMirror = Mirror(mirroring: paletteRam, times: 7)
+            let paletteMirror = Mirror(mirroring: paletteRAM, times: 7)
             ppuBus.addDevice(paletteMirror, at: PPUBusAddresses.paletteRAMIndexesStart)
         }
         
         cpu = CPU(bus: mainBus)
-        ppu = PPU(bus: ppuBus, cpu: cpu)
+        ppu = PPU(bus: ppuBus, cpu: cpu, paletteRAMDirectAccess: paletteRAM)
         oamDMA = OAMDMA(cpu: cpu)
         
         if !allRAM {

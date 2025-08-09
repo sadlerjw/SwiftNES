@@ -41,6 +41,8 @@ class PPU {
     // Internals:
     var oam = OAMTable()
     
+    var paletteRAMDirectAccess: RAM_legacy
+    
     // Internal scrolling registers (https://www.nesdev.org/wiki/PPU_scrolling#PPU_internal_registers)
     var v = PPUAddressRegister()    // Current VRAM address (15 bits)
     var t = PPUAddressRegister()    // Temporary VRAM address, used as address of the top left onscreen tile (15 bits)
@@ -65,9 +67,10 @@ class PPU {
         return mask.contains(.renderBackground) || mask.contains(.renderSprites)
     }
     
-    init(bus: any BusProtocol, cpu: CPU) {
+    init(bus: any BusProtocol, cpu: CPU, paletteRAMDirectAccess: RAM_legacy) {
         self.bus = bus
         self.cpu = cpu
+        self.paletteRAMDirectAccess = paletteRAMDirectAccess
         self.actualRegisters = Registers(ppu: self)
     }
     
@@ -112,7 +115,7 @@ class PPU {
         let nesColor : Byte
         
         if value == 0 {
-            nesColor = bus.read(0x3F00)
+            nesColor = paletteRAMDirectAccess.read(at: 0)
         } else {
             
             let paletteBaseAddress : Address
@@ -123,7 +126,8 @@ class PPU {
                 paletteBaseAddress = 0x3F10
             }
             
-            nesColor = bus.read(paletteBaseAddress + Address(palette) * 4 + Address(value))
+//            nesColor = bus.read(paletteBaseAddress + Address(palette) * 4 + Address(value))
+            nesColor = paletteRAMDirectAccess.read(at: paletteBaseAddress - 0x3F00 + Address(palette) * 4 + Address(value))
         }
         
         let rgba = Color.colors[Int(nesColor)]

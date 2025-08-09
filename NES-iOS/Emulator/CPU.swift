@@ -204,7 +204,6 @@ class CPU {
         guard cyclesBeforeNextInstruction == 0 else { return }
         
         guard !nonMaskableInterruptPending else {
-            print("NMI")
             stack.push(pc)
             stack.push(status.rawValue)
             
@@ -223,17 +222,16 @@ class CPU {
         let opcode = bus.read(pc)
         
         guard let opcodeReference = OpcodeReference.lookupTable[opcode] else {
-            print("Invalid opcode: \(opcode)")
-            return
+            fatalError("Invalid opcode: \(opcode)")
         }
         
-        printout(opcodeReference: opcodeReference)
+//        printout(opcodeReference: opcodeReference)
         
         pc += 1
         
         cyclesBeforeNextInstruction = opcodeReference.defaultCycles
         
-        var addressingMode = opcodeReference.addressingMode.init()
+        let addressingMode = opcodeReference.addressingMode.init()
         if addressingMode is MemoryBasedAddressingMode {
             (addressingMode as! MemoryBasedAddressingMode).computeAddress(cpu: self)
         }
