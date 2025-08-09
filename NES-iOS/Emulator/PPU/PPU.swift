@@ -56,7 +56,8 @@ class PPU {
     private(set) var cycle : Int = 0
     
     private(set) var nametableByte: Byte = 0
-    private(set) var attributeTableByte: Byte = 0
+    private(set) var attributeLow: Bool = false
+    private(set) var attributeHigh: Bool = false
     private(set) var patternTableTileLow: Byte = 0
     private(set) var patternTableTileHigh: Byte = 0
     
@@ -167,40 +168,11 @@ class PPU {
     }
     
     private func loadShiftRegiters() {
-        // Set renderingShiftRegisters
-        renderingShiftRegisters.loadPattern(high: patternTableTileHigh, low: patternTableTileLow)
+        renderingShiftRegisters.loadPattern(high: patternTableTileHigh,
+                                            low: patternTableTileLow)
         
-        // Now to select the correct 2 bits from the attribute byte.
-        // We break the tile we've loaded the pattern for into 4 quadrants,
-        // with two of the attribute byte's bits corresponding to each
-        // quadrant like so:
-        // +-----+-----+
-        // | 1 0 | 3 2 |
-        // +-----+-----+
-        // | 5 4 | 7 6 |
-        // +-----+-----+
-        if v.coarseYScroll % 4 > 2 {
-            // Top row
-            if v.coarseXScroll % 4 < 2 {
-                // Top left - take bytes 0 and 1
-                renderingShiftRegisters.loadAttributes(high: (attributeTableByte & 1 << 0) > 0,
-                                                       low: (attributeTableByte & 1 << 1) > 0)
-            } else {
-                // Top right - take bytes 2 and 3
-                renderingShiftRegisters.loadAttributes(high: (attributeTableByte & 1 << 2) > 0,
-                                                       low: (attributeTableByte & 1 << 3) > 0)
-            }
-        } else {
-            if v.coarseXScroll % 4 < 2 {
-                // Bottom left - take bytes 4 and 5
-                renderingShiftRegisters.loadAttributes(high: (attributeTableByte & 1 << 5) > 0,
-                                                       low: (attributeTableByte & 1 << 4) > 0)
-            } else {
-                // Bottom right - take bytes 6 and 7
-                renderingShiftRegisters.loadAttributes(high: (attributeTableByte & 1 << 7) > 0,
-                                                       low: (attributeTableByte & 1 << 6) > 0)
-            }
-        }
+        renderingShiftRegisters.loadAttributes(high: attributeHigh,
+                                               low: attributeLow)
     }
     
     func tick() {
@@ -227,8 +199,40 @@ class PPU {
                         let nametableAddress = NES.PPUBusAddresses.nametable0Start + v.nametableAddressOffset
                         nametableByte = bus.read(nametableAddress)
                     case 4:
-                        let attributeAddress = NES.PPUBusAddresses.attributeTable0Start + v.attributeAddress
-                        attributeTableByte = bus.read(attributeAddress)
+                        let attributeAddress = NES.PPUBusAddresses.attributeTable0Start | v.attributeAddress
+                        let byte = bus.read(attributeAddress)
+                        
+                        // The attribute byte applies to a 2x2 grid of tiles.
+                        // We break the tile we've loaded the pattern for into 4 quadrants,
+                        // with two of the attribute byte's bits corresponding to each
+                        // quadrant like so:
+                        // +-----+-----+
+                        // | 1 0 | 3 2 |
+                        // +-----+-----+
+                        // | 5 4 | 7 6 |
+                        // +-----+-----+
+                        let attributeByteForTile: Byte
+                        if v.coarseYScroll % 4 > 2 {
+                            // Top row
+                            if v.coarseXScroll % 4 < 2 {
+                                // Top left - take bytes 0 and 1
+                                attributeByteForTile = (byte >> 0) & 0x03
+                            } else {
+                                // Top right - take bytes 2 and 3
+                                attributeByteForTile = (byte >> 2) & 0x03
+                            }
+                        } else {
+                            if v.coarseXScroll % 4 < 2 {
+                                // Bottom left - take bytes 4 and 5
+                                attributeByteForTile = (byte >> 4) & 0x03
+                            } else {
+                                // Bottom right - take bytes 6 and 7
+                                attributeByteForTile = (byte >> 6) & 0x03
+                            }
+                        }
+                        
+                        attributeHigh = (attributeByteForTile & (1 << 1)) > 0
+                        attributeLow = (attributeByteForTile & (1 << 0)) > 0
                     case 6:
                         patternTableTileLow = bus.read(patternTableAddress(leftTable: !control.contains(.backgroundPatternTableAddress),
                                                                            tile: nametableByte,
